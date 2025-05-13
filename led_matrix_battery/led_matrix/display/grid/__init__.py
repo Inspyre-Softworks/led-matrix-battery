@@ -5,10 +5,12 @@ from led_matrix_battery.led_matrix.constants import (
     DEVICES
 )
 from led_matrix_battery.led_matrix.helpers import load_from_file
+from led_matrix_battery.led_matrix.display.grid.helpers import load_blank_grid
 from platformdirs import PlatformDirs
 
 
-APP_DIRS = PlatformDirs('LEDMatrixLib', appauthor='Inspyre Softworks')
+APP_DIRS    = PlatformDirs('LEDMatrixLib', appauthor='Inspyre Softworks')
+PRESETS_DIR = APP_DIRS.user_data_path.joinpath('presets')
 
 
 
@@ -36,11 +38,7 @@ class Grid:
         if init_grid is not None:
             self.grid = [row.copy() for row in init_grid]
         else:
-            self.grid = [
-                [self.fill_value for _ in range(self.width)]
-                for _ in range(self.height)
-            ]
-
+            self.load_blank_grid
 
     def _process_grid_dimensions(self):
         if self.__grid is None:

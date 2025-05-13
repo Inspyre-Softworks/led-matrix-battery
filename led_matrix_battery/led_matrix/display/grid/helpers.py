@@ -4,6 +4,7 @@ from typing import Any, List
 from inspyre_toolbox.chrono import sleep as ist_sleep
 from serial.tools.list_ports_common import ListPortInfo
 
+from led_matrix_battery.led_matrix.helpers.device import get_device
 from led_matrix_battery.inputmodule.ledmatrix import render_matrix
 from led_matrix_battery.led_matrix.errors import MalformedGridError
 
