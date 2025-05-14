@@ -9,7 +9,6 @@ from led_matrix_battery.led_matrix.display.grid.helpers import load_blank_grid
 from platformdirs import PlatformDirs
 
 
-APP_DIRS    = PlatformDirs('LEDMatrixLib', appauthor='Inspyre Softworks')
 PRESETS_DIR = APP_DIRS.user_data_path.joinpath('presets')
 
 
