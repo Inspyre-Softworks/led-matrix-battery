@@ -24,7 +24,7 @@ from .errors import *
 from led_matrix_battery.common.helpers import percentage_to_value
 from led_matrix_battery.log_engine import ROOT_LOGGER as PARENT_LOGGER, Loggable
 from led_matrix_battery.notify.sounds import PLUGGED_NOTIFY, UNPLUGGED_NOTIFY, Sound
-from led_matrix_battery.inputmodule.helpers import check_device
+from ..led_matrix.helpers.device import check_device
 from led_matrix_battery.led_matrix.display.animations import goodbye_animation
 from led_matrix_battery.inputmodule.ledmatrix import (
     animate,

@@ -82,20 +82,36 @@ def image_bl(dev, image_file):
     Must be 9x34 in size.
     Sends everything in a single command
     """
+    # Initialize a list of 39 bytes (39*8 = 312 bits, enough for 9x34 = 306 pixels)
     vals = [0 for _ in range(39)]
 
     from PIL import Image
 
+    # Open the image and convert to RGB format
     im = Image.open(image_file).convert("RGB")
     width, height = im.size
+
+    # Verify image dimensions match the LED matrix size
     assert width == 9
     assert height == 34
+
+    # Get all pixel values as a flat list
     pixel_values = list(im.getdata())
+
+    # Process each pixel
     for i, pixel in enumerate(pixel_values):
+        # Calculate average brightness of RGB components
         brightness = sum(pixel) / 3
+
+        # If brightness is above half of max (127.5), consider it "on"
+        # This creates a binary black/white effect
         if brightness > 0xFF / 2:
+            # Calculate which byte in vals array this pixel belongs to (i/8)
+            # Then set the appropriate bit within that byte (i%8)
+            # This packs 8 pixels into each byte of the vals array
             vals[int(i / 8)] |= 1 << i % 8
 
+    # Send the packed binary data to the device
     send_command(dev, CommandVals.Draw, vals)
 
 
@@ -337,24 +353,54 @@ def eq(dev, vals):
 def render_matrix(dev, matrix):
     """Show a black/white matrix
     Send everything in a single command"""
+    # Initialize a byte array to hold the binary representation of the matrix
+    # 39 bytes = 312 bits, which is enough for 9x34 = 306 pixels
     vals = [0x00 for _ in range(39)]
 
+    # Iterate through each position in the 9x34 matrix
     for x in range(9):
         for y in range(34):
+            # Convert 2D coordinates to a linear index
+            # The matrix is stored in column-major order (y changes faster than x)
             i = x + 9 * y
-            if matrix[x][y]:
-                vals[int(i / 8)] = vals[int(i / 8)] | (1 << i % 8)
 
+            # If the pixel at this position is "on" (non-zero)
+            if matrix[x][y]:
+                # Calculate which byte in the vals array this pixel belongs to
+                byte_index = int(i / 8)
+
+                # Calculate which bit within that byte represents this pixel
+                bit_position = i % 8
+
+                # Set the corresponding bit in the appropriate byte
+                # This efficiently packs 8 pixels into each byte
+                vals[byte_index] = vals[byte_index] | (1 << bit_position)
+
+    # Send the packed binary data to the device
     send_command(dev, CommandVals.Draw, vals)
 
 
 def light_leds(dev, leds):
     """Light a specific number of LEDs"""
+    # Initialize a byte array with all LEDs off
     vals = [0x00 for _ in range(39)]
-    for byte in range(int(leds / 8)):
+
+    # Calculate how many complete bytes we need to fill (each byte = 8 LEDs)
+    complete_bytes = int(leds / 8)
+
+    # Set all complete bytes to 0xFF (all 8 bits on)
+    for byte in range(complete_bytes):
         vals[byte] = 0xFF
-    for i in range(leds % 8):
-        vals[int(leds / 8)] += 1 << i
+
+    # Handle the remaining LEDs (less than 8) in the last partial byte
+    remaining_leds = leds % 8
+
+    # For each remaining LED, set the corresponding bit in the last byte
+    # This creates a binary pattern like 00011111 for 5 remaining LEDs
+    for i in range(remaining_leds):
+        vals[complete_bytes] += 1 << i
+
+    # Send the command to the device to display the pattern
     send_command(dev, CommandVals.Draw, vals)
 
 
@@ -425,17 +471,37 @@ def show_string(dev, s):
 
 def show_font(dev, font_items):
     """Render up to five 5x6 pixel font items"""
+    # Initialize a byte array with all pixels off
     vals = [0x00 for _ in range(39)]
 
+    # Process each font item (character/symbol)
     for digit_i, digit_pixels in enumerate(font_items):
+        # Calculate vertical offset for this character
+        # Each character is placed 7 pixels apart vertically
         offset = digit_i * 7
+
+        # Process each pixel in the 5x6 character grid
         for pixel_x in range(5):
             for pixel_y in range(6):
+                # Convert 2D coordinates to 1D index in the font data
+                # Font data is stored as a 1D array in row-major order
                 pixel_value = digit_pixels[pixel_x + pixel_y * 5]
-                i = (2 + pixel_x) + (9 * (pixel_y + offset))
-                if pixel_value:
-                    vals[int(i / 8)] = vals[int(i / 8)] | (1 << i % 8)
 
+                # Calculate the position in the LED matrix
+                # Characters start at x=2 (to center them) and are stacked vertically
+                # with the calculated offset
+                i = (2 + pixel_x) + (9 * (pixel_y + offset))
+
+                # If this pixel should be on
+                if pixel_value:
+                    # Calculate which byte and bit to set
+                    byte_index = int(i / 8)
+                    bit_position = i % 8
+
+                    # Set the bit in the appropriate byte
+                    vals[byte_index] = vals[byte_index] | (1 << bit_position)
+
+    # Send the command to display the characters
     send_command(dev, CommandVals.Draw, vals)
 
 

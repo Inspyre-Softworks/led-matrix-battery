@@ -1,9 +1,21 @@
 """
-Constants for the input module.
-"""
+Constants for the LED Matrix Battery Monitor.
 
-from cv2 import COLOR_BGR2GRAY, COLOR_RGB2GRAY
-from led_matrix_battery.inputmodule.helpers import DEVICES
+This module defines various constants used throughout the application, including:
+- Serial communication settings (baudrate, response size)
+- Hardware identifiers (magic numbers, product ID, vendor ID)
+- Matrix dimensions (height, width)
+- Grayscale conversion constants for different input sources
+- Physical slot mapping for device locations
+- Project URLs for external resources
+"""
+from led_matrix_battery.common.dirs import PRESETS_DIR
+
+# Hardware identifiers
+FWK_MAGIC = [0x32, 0xAC]
+PID       = 0x20
+SN_PREFIX = 'FRAK'
+VID       = 0x32AC
 
 # Serial configuration
 DEFAULT_BAUDRATE = 115_200
@@ -12,17 +24,6 @@ RESPONSE_SIZE    = 32
 # Disconnected device placeholder
 DISCONNECTED_DEVS = []
 
-# Hardware identifiers
-FWK_MAGIC = [0x32, 0xAC]
-PID       = 0x20
-SN_PREFIX = 'FRAK'
-VID       = 0x32AC
-
-# Grayscale conversion constants
-GRAYSCALE_CVT = {
-    'camera': COLOR_BGR2GRAY,
-    'video': COLOR_RGB2GRAY,
-}
 
 # Matrix dimensions
 HEIGHT = 34
@@ -30,8 +31,12 @@ WIDTH  = 9
 
 # Project URLs
 PROJECT_URLS = {
-    'github_api': 'https://api.github.com/repos/Inspyre-Softworks/led-matrix-battery/contents/presets?ref=master'
+    'github_api': 'https://api.github.com/repos/Inspyre-Softworks/led-matrix-battery/contents'
 }
+
+GITHUB_URL_SUFFIX = '?ref=master'
+
+
 
 # Physical slot mapping
 SLOT_MAP = {
@@ -41,12 +46,29 @@ SLOT_MAP = {
     '1-4.3': {'abbrev': 'L2', 'side': 'left',  'slot': 2},
 }
 
+
+from cv2 import COLOR_BGR2GRAY, COLOR_RGB2GRAY
+from led_matrix_battery.led_matrix.helpers.device import DEVICES
+from led_matrix_battery.common.dirs import APP_DIRS
+from led_matrix_battery.dev_tools.presets import MANIFEST_FILE_NAME
+
+MANIFEST_FILE_PATH = PRESETS_DIR.joinpath(MANIFEST_FILE_NAME)
+
+
+
+# Grayscale conversion constants
+GRAYSCALE_CVT = {
+    'camera': COLOR_BGR2GRAY,
+    'video': COLOR_RGB2GRAY,
+}
+
+
 # Cleanup
 del COLOR_BGR2GRAY, COLOR_RGB2GRAY
 
 __all__ = [
+    'APP_DIRS',
     'DEFAULT_BAUDRATE',
-    'DEVICES',
     'DISCONNECTED_DEVS',
     'FWK_MAGIC',
     'GRAYSCALE_CVT',

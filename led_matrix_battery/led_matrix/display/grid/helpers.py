@@ -1,12 +1,20 @@
+from __future__ import annotations
+
 import threading
 from typing import Any, List
 
 from inspyre_toolbox.chrono import sleep as ist_sleep
 from serial.tools.list_ports_common import ListPortInfo
 
-from led_matrix_battery.led_matrix.helpers.device import get_device
+from led_matrix_battery.led_matrix.helpers.device import get_devices
+from led_matrix_battery.led_matrix.constants import HEIGHT, WIDTH
 from led_matrix_battery.inputmodule.ledmatrix import render_matrix
 from led_matrix_battery.led_matrix.errors import MalformedGridError
+
+
+def load_blank_grid(width: int = WIDTH, height: int = HEIGHT) -> Grid:
+    pass
+
 
 
 def is_valid_grid(grid: Any, width: int, height: int) -> bool:

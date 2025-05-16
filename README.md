@@ -78,7 +78,7 @@ To start monitoring your battery with default settings:
 
 ```python
 from led_matrix_battery.monitor import run_power_monitor
-from led_matrix_battery.inputmodule.helpers import DEVICES
+from led_matrix_battery.led_matrix.helpers.device import DEVICES
 
 # Get the first available LED matrix device
 device = DEVICES[0]

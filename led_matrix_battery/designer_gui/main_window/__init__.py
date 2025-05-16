@@ -4,7 +4,7 @@ import PySimpleGUI as sg
 import copy
 import os
 
-from led_matrix_battery.inputmodule.helpers import DEVICES
+from ...led_matrix.helpers.device import DEVICES
 from led_matrix_battery.led_matrix.display.animations.frame.base import Frame
 from led_matrix_battery.led_matrix.display.grid.helpers import is_valid_grid
 from led_matrix_battery.led_matrix.display.animations.frame.helpers import is_valid_frames
