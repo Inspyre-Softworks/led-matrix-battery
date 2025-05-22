@@ -7,18 +7,21 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
-dependencies = [
-    "chime (>=0.7.0,<0.8.0)",
-    "pyserial (>=3.5,<4.0)",
-    "inspy-logger (>=3.2.3,<4.0.0)",
-    "inspyre-toolbox (>=1.6.0.dev23)",
-    "pillow (>=11.2.1,<12.0.0)",
-    "opencv-python (>=4.11.0.86,<5.0.0.0)",
-    "pysimplegui-4-foss (>=4.60.4.1,<5.0.0.0)",
-    "tk (>=0.1.0,<0.2.0)",
-    "easy-exit-calls (>=1.0.0.dev1,<2.0.0)"
-]
 
+[tool.poetry.dependencies]
+chime = ">=0.7.0,<0.8.0"
+pyserial = ">=3.5,<4.0"
+inspy-logger = ">=3.2.3,<4.0.0"
+inspyre-toolbox = ">=1.6.0.dev23"
+pillow = ">=11.2.1,<12.0.0"
+opencv-python = ">=4.11.0.86,<5.0.0.0"
+pysimplegui-4-foss = ">=4.60.4.1,<5.0.0.0"
+tk = ">=0.1.0,<0.2.0"
+easy-exit-calls = ">=1.0.0.dev1,<2.0.0"
+clipboard = { version = "^0.0.4", optional = true }
+
+[tool.poetry.extras]
+clipboard_support = ['clipboard']
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -29,4 +32,14 @@ ipython = "^9.1.0"
 prompt-toolkit = "^3.0.51"
 ptipython = "^1.0.1"
 ipyboost = {path = "../../Projects/iPyBoost/dist/ipyboost-1.0.0a5-py3-none-any.whl"}
+pytest = "^8.0.0"
 
+[tool.poetry.scripts]
+python-path = "Scripts.python_path:main"
+led-matrix-identify = 'Scripts.identify_matrices:main'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"

@@ -2,15 +2,29 @@ import serial
 from inspyre_toolbox.chrono.sleep import NegateSwitch
 from inspyre_toolbox.path_man import provision_path
 
-from ..constants import FWK_MAGIC, RESPONSE_SIZE
+from led_matrix_battery.led_matrix.constants import FWK_MAGIC, RESPONSE_SIZE
 from serial.tools.list_ports_common import ListPortInfo
 
 import json
 from pathlib import Path
-from typing import Union, Optional, List
+from typing import Union, Optional, List, Dict, Any, Tuple, Callable, TypeVar, Generic, Sequence, Iterable, Set, FrozenSet, Mapping, MutableMapping, ByteString
 
 
-def get_json_from_file(path: Union[str, Path]):
+def get_json_from_file(path: Union[str, Path]) -> Any:
+    """
+    Load and parse a JSON file.
+
+    Args:
+        path (Union[str, Path]): The path to the JSON file to load.
+
+    Returns:
+        Any: The parsed JSON data.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IsADirectoryError: If the path points to a directory.
+        json.JSONDecodeError: If the file contains invalid JSON.
+    """
     path = provision_path(path)
     if not path.exists():
         raise FileNotFoundError(f'Preset file not found: {path}')
@@ -30,23 +44,21 @@ def load_from_file(
 ) -> List['Frame']:
     """
     Load a list of frames from a file.
-    
-    Parameters:
-        path (Union[str, Path]):
-            The path to the file to load.
-         
-        expected_width (Optional[int]):
-            The expected width of the frames in the file. Defaults to 9. 
-        
-        expected_height (Optional[int]):
-            The expected height of the frames in the file. Defaults to 34.
-        
-        fallback_duration:
-            The duration of the frames in the file. Defaults to 0.33 (1/3 of a second).
+
+    Args:
+        path (Union[str, Path]): The path to the file to load.
+        expected_width (Optional[int]): The expected width of the frames in the file. Defaults to 9.
+        expected_height (Optional[int]): The expected height of the frames in the file. Defaults to 34.
+        fallback_duration (Optional[Union[int, float]]): The duration of the frames in the file. 
+            Defaults to 0.33 (1/3 of a second).
 
     Returns:
-        List[Frame]:
-            A list of frames loaded from the file.
+        List[Frame]: A list of frames loaded from the file.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IsADirectoryError: If the path points to a directory.
+        ValueError: If the file does not contain a valid JSON array.
     """
     from led_matrix_battery.led_matrix.display.animations.frame.helpers import migrate_frame
     from led_matrix_battery.led_matrix.display.grid.helpers import is_valid_grid
@@ -54,10 +66,7 @@ def load_from_file(
     width  = expected_width  or 9
     height = expected_height or 34
 
-    json = get_json_from_file(path)
-
-    with open(path, 'r') as f:
-        data = json.load(f)
+    data = get_json_from_file(path)
 
     if not isinstance(data, list):
         raise ValueError(f"File {path} does not contain a valid JSON array")
@@ -74,15 +83,17 @@ def load_from_file(
     return data
 
 
-def disconnect_dev(dev):
+def disconnect_dev(dev: str) -> None:
     """
     Disconnect the device from the system.
 
-    Parameters:
-        dev (str):
-            The device to disconnect.
-    """
+    Args:
+        dev (str): The device to disconnect.
 
+    Note:
+        This function adds the device to a global list of disconnected devices
+        to prevent further attempts to communicate with it.
+    """
     global DISCONNECTED_DEVS
     if dev in DISCONNECTED_DEVS:
         return
@@ -90,50 +101,39 @@ def disconnect_dev(dev):
     DISCONNECTED_DEVS.append(dev)
 
 
-def send_command(dev, command, parameters=None, with_response=False):
+def send_command(dev: ListPortInfo, command: int, parameters: Optional[List[int]] = None, with_response: bool = False) -> Optional[ByteString]:
     """
     Send a command to the device using a new serial connection.
 
-    Parameters:
-        dev (ListPortInfo):
-            The name of the port to send the command to.
-
-        command (list):
-            The command to send.
-
-        parameters (list):
-            The parameters to send with the command.
-
-        with_response (bool):
-            Whether to wait for a response from the device.
+    Args:
+        dev (ListPortInfo): The device to send the command to.
+        command (int): The command to send.
+        parameters (Optional[List[int]], optional): The parameters to send with the command. Defaults to None.
+        with_response (bool, optional): Whether to wait for a response from the device. Defaults to False.
 
     Returns:
-        The response from the device, if any.
+        Optional[ByteString]: The response from the device, if any, or None if no response or an error occurred.
     """
     if parameters is None:
         parameters = []
     return send_command_raw(dev, FWK_MAGIC + [command] + parameters, with_response)
 
 
-def send_command_raw(dev, command, with_response=False, response_size=None):
+def send_command_raw(dev: ListPortInfo, command: List[int], with_response: bool = False, response_size: Optional[int] = None) -> Optional[ByteString]:
     """
     Send a command to the device using a new serial connection.
 
-    Parameters:
-        dev (ListPortInfo):
-            The name of the port to send the command to.
-
-        command (list):
-            The command to send.
-
-        with_response (bool):
-            Whether to wait for a response from the device.
-
-        response_size (int):
-            The size of the response to expect.
+    Args:
+        dev (ListPortInfo): The device to send the command to.
+        command (List[int]): The command to send.
+        with_response (bool, optional): Whether to wait for a response from the device. Defaults to False.
+        response_size (Optional[int], optional): The size of the response to expect. Defaults to None.
 
     Returns:
-        The response from the device, if any.
+        Optional[ByteString]: The response from the device, if any, or None if no response or an error occurred.
+
+    Raises:
+        IOError, OSError: If there is an error communicating with the device.
     """
     # print(f"Sending command: {command}")
     res_size = response_size or RESPONSE_SIZE
@@ -148,19 +148,17 @@ def send_command_raw(dev, command, with_response=False, response_size=None):
         # print("Error: ", ex)
 
 
-def send_serial(dev, s, command):
+def send_serial(dev: ListPortInfo, s: 'serial.Serial', command: ByteString) -> None:
     """
-    Send serial command by using an existing serial connection
+    Send serial command by using an existing serial connection.
 
-    Parameters:
-        dev (ListPortInfo):
-            The name of the port to send the command to.
+    Args:
+        dev (ListPortInfo): The device to send the command to.
+        s (serial.Serial): The serial connection to use.
+        command (ByteString): The command to send.
 
-        s (`serial.Serial`):
-            The serial connection to use.
-
-        command (bytes):
-            The command to send.
+    Raises:
+        IOError, OSError: If there is an error communicating with the device.
     """
     try:
         s.write(command)
@@ -169,10 +167,18 @@ def send_serial(dev, s, command):
         # print("Error: ", ex)
 
 
-def identify_devices(devices=None):
+def identify_devices(devices: Optional[List[ListPortInfo]] = None) -> None:
+    """
+    Identify LED matrix devices.
+
+    This function is a placeholder for future implementation.
+
+    Args:
+        devices (Optional[List[ListPortInfo]], optional): List of devices to identify. 
+            Defaults to None, which means all available devices.
+    """
+    # TODO: Implement device identification
     pass
 
 
 running = NegateSwitch(False)
-
-

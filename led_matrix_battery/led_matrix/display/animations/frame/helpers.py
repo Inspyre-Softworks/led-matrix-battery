@@ -15,8 +15,6 @@ def check_path(path: Union[str, Path], skip_exists_check: bool = False) -> Path:
     return path
 
 
-
-
 def load_frames_from_file(path: Union[str, Path]) -> List['Frame']:
     from led_matrix_battery.led_matrix.display.animations.frame.base import Frame
     from led_matrix_battery.led_matrix.helpers import get_json_from_file

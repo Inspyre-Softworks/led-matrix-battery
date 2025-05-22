@@ -10,29 +10,35 @@ from __future__ import annotations
 
 # Standard library
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, Dict, Any
 
 # Third‑party
 from serial.tools.list_ports_common import ListPortInfo
 
 # Inspyre‑Softworks
-from inspyre_toolbox.syntactic_sweets.classes.decorators.type_validation import validate_type  # For type validation in method parameters
-from inspyre_toolbox.syntactic_sweets.classes.decorators.aliases import add_aliases, method_alias  # For adding method aliases
+from inspyre_toolbox.syntactic_sweets.classes.decorators.type_validation import \
+    validate_type  # For type validation in method parameters
+from inspyre_toolbox.syntactic_sweets.classes.decorators.aliases import add_aliases, \
+    method_alias  # For adding method aliases
 from led_matrix_battery.common.helpers import percentage_to_value  # Converts percentage values to raw hardware values
 from led_matrix_battery.log_engine import ROOT_LOGGER as PARENT_LOGGER, Loggable  # Logging functionality
 from led_matrix_battery.inputmodule.ledmatrix import (
-    animate,                                # Check if animation is enabled
-    brightness as _set_brightness_raw,      # Low-level brightness control
-    get_animate,                            # Get animation status
-    pattern as _set_pattern_raw,            # Low-level pattern display
-    percentage as _show_percentage_raw,     # Low-level percentage display
-    show_string as _show_string_raw,        # Low-level string display
-    render_matrix                           # Render a grid on the matrix
+    animate,  # Check if animation is enabled
+    brightness as _set_brightness_raw,  # Low-level brightness control
+    get_animate,  # Get animation status
+    pattern as _set_pattern_raw,  # Low-level pattern display
+    percentage as _show_percentage_raw,  # Low-level percentage display
+    show_string as _show_string_raw,  # Low-level string display
+    render_matrix  # Render a grid on the matrix
 )
-from led_matrix_battery.led_matrix.constants import SLOT_MAP  # Maps device locations to physical slots
+from led_matrix_battery.led_matrix.constants import SLOT_MAP, HEIGHT, WIDTH
 from led_matrix_battery.led_matrix.errors import InvalidBrightnessError  # Error for invalid brightness values
-from led_matrix_battery.led_matrix.display.grid import generate_blank_grid  # Creates an empty grid
+
 from led_matrix_battery.led_matrix.display.grid.grid import Grid
+
+
+def generate_blank_grid(width: Optional[int] = None, height: Optional[int] = None) -> Grid:
+    return Grid.load_blank_grid()
 
 
 @add_aliases
@@ -53,7 +59,7 @@ class LEDMatrixController:
         slot (int): The slot number of the device.
     """
 
-    def __init__(self, device, default_brightness):
+    def __init__(self, device, default_brightness, skip_init_brightness_set: bool = False, skip_init_clear: bool = False, init_grid: Optional[Grid] = None):
         """
         Initialize a new LED Matrix Controller.
 
@@ -63,11 +69,17 @@ class LEDMatrixController:
         """
         self.__default_brightness = self.__normalize_percent(default_brightness)
         self.__device = None
+        self.__grid   = None
 
         self.device = device
+        if not skip_init_clear:
+            self.clear()
+
+        if not skip_init_brightness_set:
+            self.set_brightness(self.__default_brightness)
 
     @property
-    def animating(self):
+    def animating(self) -> bool:
         """
         Check if the device is currently animating.
 
@@ -77,7 +89,16 @@ class LEDMatrixController:
         return animate(self.device)
 
     @property
-    def device(self):
+    def brightness(self):
+        return self.__brightness or self.__default_brightness
+
+    @brightness.setter
+    def brightness(self, new):
+        self.set_brightness(new, True)
+        self.__brightness = new
+
+    @property
+    def device(self) -> ListPortInfo:
         """
         Get the current LED matrix device.
 
@@ -103,7 +124,7 @@ class LEDMatrixController:
 
         self.__device = device
 
-    def animate(self, enable=True):
+    def animate(self, enable: bool = True) -> None:
         """
         Control animation on the LED matrix.
 
@@ -114,7 +135,7 @@ class LEDMatrixController:
         # The animate function also sets the status to 'animate' when enabled
         animate(self.device, enable)
 
-    def draw_grid(self, grid: 'Grid'):
+    def draw_grid(self, grid: 'Grid') -> None:
         """
         Draw a grid on the LED matrix.
 
@@ -137,18 +158,18 @@ class LEDMatrixController:
         _set_pattern_raw(self.device, pattern)
 
     @property
-    def location(self):
+    def location(self) -> Dict[str, Any]:
         """
         Get the physical location information for the device.
 
         Returns:
-            dict: A dictionary containing location information such as
-                  abbreviation, side, and slot.
+            Dict[str, Any]: A dictionary containing location information such as
+                           abbreviation, side, and slot.
         """
         return SLOT_MAP.get(self.device.location)
 
     @property
-    def location_abbrev(self):
+    def location_abbrev(self) -> str:
         """
         Get the abbreviated location identifier for the device.
 
@@ -158,7 +179,7 @@ class LEDMatrixController:
         return self.location['abbrev']
 
     @property
-    def side_of_keyboard(self):
+    def side_of_keyboard(self) -> str:
         """
         Get which side of the keyboard the device is on.
 
@@ -168,7 +189,7 @@ class LEDMatrixController:
         return self.location['side']
 
     @property
-    def slot(self):
+    def slot(self) -> int:
         """
         Get the slot number of the device.
 
@@ -177,7 +198,7 @@ class LEDMatrixController:
         """
         return self.location['slot']
 
-    def clear(self):
+    def clear(self) -> None:
         """
         Clear the LED matrix display.
 
@@ -187,7 +208,7 @@ class LEDMatrixController:
         grid = Grid(init_grid=data)
         self.draw_grid(grid)
 
-    def halt_animation(self):
+    def halt_animation(self) -> None:
         """
         Stop any ongoing animation on the LED matrix.
 
@@ -201,7 +222,7 @@ class LEDMatrixController:
     def identify(
             self,
             skip_clear: bool = False
-    ):
+    ) -> None:
         """
         Display identification information on the LED matrix.
 
@@ -212,23 +233,21 @@ class LEDMatrixController:
             skip_clear (bool, optional): If True, doesn't clear the display
                                          after identification. Defaults to False.
         """
+        if not skip_clear:
+            self.clear()
         from time import sleep
         acc = 0
         while acc < 3:
-
             _show_string_raw(self.device, self.location_abbrev)
             sleep(3)
             _show_string_raw(self.device, self.device.name)
             sleep(3)
             acc += 1
 
-        # NOTE: The following code is commented out but preserved for future implementation
-        # It would clear the display after identification if skip_clear is False
-        #if not skip_clear:
-        #    self.clear()
+        if not skip_clear:
+            self.clear()
 
-
-    def set_brightness(self, brightness: Union[int, float]) -> None:
+    def set_brightness(self, brightness: Union[int, float], __from_setter=False) -> None:
         """
         Set the brightness level of the LED matrix.
 
@@ -240,7 +259,7 @@ class LEDMatrixController:
         """
         # Convert the percentage (0-100) to a hardware-specific value
         # The hardware expects a different range than the user-friendly percentage
-        brightness_value = percentage_to_value(brightness)
+        brightness_value = percentage_to_value(max_value=255, percent=brightness)
 
         try:
             # Call the low-level function to set the brightness on the device
@@ -250,6 +269,8 @@ class LEDMatrixController:
             # InvalidBrightnessError to provide more context about the error
             raise InvalidBrightnessError(brightness_value) from e
 
+        if not __from_setter:
+            self.__brightness = brightness
 
     @staticmethod
     # Internal methods
@@ -289,4 +310,4 @@ class LEDMatrixController:
             str: A string representation including device, location, and brightness.
         """
         return f"<LEDMatrixController device={self.device!r}(location={self.location!r}) " \
-        f"brightness={self.__default_brightness}%>"
+               f"brightness={self.__default_brightness}%>"

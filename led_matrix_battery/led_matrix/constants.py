@@ -54,8 +54,6 @@ from led_matrix_battery.dev_tools.presets import MANIFEST_FILE_NAME
 
 MANIFEST_FILE_PATH = PRESETS_DIR.joinpath(MANIFEST_FILE_NAME)
 
-
-
 # Grayscale conversion constants
 GRAYSCALE_CVT = {
     'camera': COLOR_BGR2GRAY,
@@ -69,6 +67,7 @@ del COLOR_BGR2GRAY, COLOR_RGB2GRAY
 __all__ = [
     'APP_DIRS',
     'DEFAULT_BAUDRATE',
+    'DEVICES',
     'DISCONNECTED_DEVS',
     'FWK_MAGIC',
     'GRAYSCALE_CVT',

@@ -5,5 +5,5 @@ This module provides the Grid class for representing and manipulating
 the LED matrix display grid. It includes functionality for creating,
 loading, and modifying grid patterns.
 """
-from led_matrix_battery.led_matrix.display.grid.helpers import load_blank_grid
+from led_matrix_battery.led_matrix.display.grid.helpers import generate_blank_grid
 from led_matrix_battery.led_matrix.display.grid.grid import Grid

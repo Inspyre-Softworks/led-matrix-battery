@@ -6,47 +6,88 @@ from typing import Any, List
 from inspyre_toolbox.chrono import sleep as ist_sleep
 from serial.tools.list_ports_common import ListPortInfo
 
+from led_matrix_battery.common.helpers import coerce_to_int
 from led_matrix_battery.led_matrix.helpers.device import get_devices
 from led_matrix_battery.led_matrix.constants import HEIGHT, WIDTH
 from led_matrix_battery.inputmodule.ledmatrix import render_matrix
 from led_matrix_battery.led_matrix.errors import MalformedGridError
 
 
-def load_blank_grid(width: int = WIDTH, height: int = HEIGHT) -> Grid:
+def get_grid_spec_from_animation_file(path: str, frame_number: int) -> List[List[int]]:
     pass
 
 
-
-def is_valid_grid(grid: Any, width: int, height: int) -> bool:
+def generate_blank_grid(
+        width: int = WIDTH,
+        height: int = HEIGHT,
+        fill_value: int = 0
+) -> List[List[int]]:
     """
-    Check if a grid is valid.
+    Generate a blank grid of the specified width and height.
 
-    A grid is valid if it is a list of lists of 0s and 1s, and the length of each list is equal to the width and height.
+    A blank grid is a list of lists of 0s, where each inner list represents a row of the grid.
 
     Parameters:
-        grid (Any):
-            The grid to check.
-
         width (int):
-            The expected width (in pixels) of the grid.
+            The width (in pixels) of the grid. Default is 9.
 
         height (int):
-            The expected height (in pixels) of the grid.
+            The height (in pixels) of the grid. Default is 34.
+
+        fill_value (int):
+            The value to fill the grid with:
+
+              - Default is 0.
+              - Accepts 0 or 1:
+                  - 0 for no LEDs on.
+                  - 1 for all LEDs on.
 
     Returns:
-        bool:
-            True if the grid is valid, False otherwise.
+        List[List[int]]:
+            A blank grid of the specified width and height.
+
+    Raises:
+        TypeError:
+            If width or height is not an int.
     """
+    if not isinstance(width, int):
+        width = coerce_to_int(width)
+        if width is None:
+            raise TypeError(f"width must be an int, not {type(width)}")
+
+    if not isinstance(height, int):
+        height = coerce_to_int(height)
+        if height is None:
+            raise TypeError(f"height must be an int, not {type(height)}")
+
+    if not isinstance(fill_value, int):
+        fill_value = coerce_to_int(fill_value)
+        if fill_value is None:
+            raise TypeError(f"fill_value must be an int, not {type(fill_value)}")
+
+    if fill_value not in (0, 1):
+        raise ValueError(f"fill_value must be 0 or 1, not {fill_value}")
+
+    return [
+        [fill_value for _ in range(height)]
+        for _ in range(width)
+    ]
+
+
+def is_valid_grid(grid, width, height):
+    # column-major: width columns of height rows each
     return (
         isinstance(grid, list)
         and len(grid) == width
         and all(
             isinstance(col, list)
             and len(col) == height
-            and all(cell in (0, 1) for cell in col)
+            and all(cell in (0,1) for cell in col)
             for col in grid
         )
     )
+
+
 
 
 def hold_pattern(dev, grid: List[List[int]], reapply_interval: float = 55.00) -> None:

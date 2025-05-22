@@ -6,6 +6,7 @@ from typing import List, Any, Union
 from led_matrix_battery.led_matrix.display.grid.helpers import is_valid_grid
 
 from led_matrix_battery.inputmodule.ledmatrix import render_matrix
+from led_matrix_battery.led_matrix.display.grid.helpers import generate_blank_grid
 
 
 class Frame:
@@ -13,14 +14,19 @@ class Frame:
     Represents a single animation frame with a duration.
     """
     DEFAULT_DURATION = 0.33
+    
     def __init__(self, grid: List[List[int]], duration: float = 1.0):
         self.__grid = None
         self.__number_of_plays = 0
         self.__duration = duration
         
-        if grid is not None:
-            self.grid = grid
-            
+        if grid is None:
+            grid = generate_blank_grid()
+        
+        self.__width  = len(grid)
+        self.__height = len(grid[0])
+        self.grid = grid
+        
         if duration is not None:
             self.duration = duration
             
@@ -33,7 +39,7 @@ class Frame:
 
         """
         
-        return self.DEFAULT_DURATION if not self.__duration else self.__duration
+        return self.__duration or self.DEFAULT_DURATION
 
     @duration.setter
     def duration(self, new: Union[float, int, str]):
@@ -55,13 +61,13 @@ class Frame:
 
     @property
     def grid(self) -> List[List[int]]:
-        return self._grid
+        return self.__grid
 
     @grid.setter
     def grid(self, value: Any) -> None:
-        if not is_valid_grid(value, self._width, self._height):
-            raise ValueError(f"Grid must be {self._width}x{self._height} list of 0/1")
-        self._grid = value
+        if not is_valid_grid(value, self.__width, self.__height):
+            raise ValueError(f"Grid must be {self.__width}x{self.__height} list of 0/1")
+        self.__grid = value
 
     @property
     def number_of_plays(self):
@@ -73,38 +79,17 @@ class Frame:
             raise ValueError("Number of plays must be a non-negative integer")
         self.__number_of_plays = new
 
-    @property
-    def duration(self) -> float:
-        return self._duration
-
-    @duration.setter
-    def duration(self, value: Any) -> None:
-        """
-        Set the duration of the frame in seconds.
-        
-        Parameter:
-            value (float):
-                The duration of the frame in seconds.
-        """
-        try:
-            dur = float(value)
-        except (TypeError, ValueError) as e:
-            raise TypeError("Duration must be a number") from e
-        if dur <= 0:
-            raise ValueError("Duration must be positive")
-        self._duration = dur
-        
     def __repr__(self) -> str:
         return f"Frame(grid={self.grid}, duration={self.duration})"
+    
     # width/height context for validation inherited from usage
     @property
-    def _width(self) -> int:
-        # trapped from outer scope; overridden by PixelGrid
-        return getattr(self, '__width', None) or 0
+    def width(self) -> int:
+        return self.__width
 
     @property
-    def _height(self) -> int:
-        return getattr(self, '__height', None) or 0
+    def height(self) -> int:
+        return self.__height
 
     @staticmethod
     def from_dict(data: dict) -> 'Frame':

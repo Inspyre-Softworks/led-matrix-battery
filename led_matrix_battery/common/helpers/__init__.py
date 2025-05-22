@@ -1,5 +1,6 @@
 import hashlib
 from pathlib import Path
+from typing import Optional
 from led_matrix_battery.led_matrix.constants import PROJECT_URLS
 import requests
 from inspyre_toolbox.path_man import provision_path
@@ -34,6 +35,23 @@ def calculate_checksum(file_path):
 
     return sha256.hexdigest()
 
+
+def coerce_to_int(value) -> Optional[int]:
+    """
+    Attempt to coerce a value to an integer.
+
+    Parameters:
+        value (Any):
+            The value to coerce.
+
+    Returns:
+        Optional[int]:
+            The coerced integer value, or None if the coercion fails.
+    """
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return None
 
 
 def percentage_to_value(percent, max_value=255):
