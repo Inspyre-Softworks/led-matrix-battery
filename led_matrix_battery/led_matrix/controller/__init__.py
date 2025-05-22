@@ -22,7 +22,7 @@ from inspyre_toolbox.syntactic_sweets.classes.decorators.aliases import add_alia
     method_alias  # For adding method aliases
 from led_matrix_battery.common.helpers import percentage_to_value  # Converts percentage values to raw hardware values
 from led_matrix_battery.log_engine import ROOT_LOGGER as PARENT_LOGGER, Loggable  # Logging functionality
-from led_matrix_battery.inputmodule.ledmatrix import (
+from led_matrix_battery.led_matrix import (
     animate,  # Check if animation is enabled
     brightness as _set_brightness_raw,  # Low-level brightness control
     get_animate,  # Get animation status

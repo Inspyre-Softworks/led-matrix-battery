@@ -9,7 +9,7 @@ from led_matrix_battery.led_matrix.display.animations.frame.base import Frame
 from led_matrix_battery.led_matrix.display.grid.helpers import is_valid_grid
 from led_matrix_battery.led_matrix.display.animations.frame.helpers import is_valid_frames
 from .layout import PixelGridLayout
-from led_matrix_battery.inputmodule.ledmatrix import render_matrix
+from led_matrix_battery.led_matrix import render_matrix
 
 
 class PixelGrid:
@@ -249,4 +249,3 @@ class PixelGrid:
 
     def _validate(self, grid: Any) -> bool:
         return is_valid_grid(grid, self.width, self.height)
-

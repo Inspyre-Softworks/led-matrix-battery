@@ -5,7 +5,7 @@ from time import sleep
 from typing import List, Any, Union
 from led_matrix_battery.led_matrix.display.grid.helpers import is_valid_grid
 
-from led_matrix_battery.inputmodule.ledmatrix import render_matrix
+from led_matrix_battery.led_matrix import render_matrix
 from led_matrix_battery.led_matrix.display.grid.helpers import generate_blank_grid
 
 
@@ -14,22 +14,22 @@ class Frame:
     Represents a single animation frame with a duration.
     """
     DEFAULT_DURATION = 0.33
-    
+
     def __init__(self, grid: List[List[int]], duration: float = 1.0):
         self.__grid = None
         self.__number_of_plays = 0
         self.__duration = duration
-        
+
         if grid is None:
             grid = generate_blank_grid()
-        
+
         self.__width  = len(grid)
         self.__height = len(grid[0])
         self.grid = grid
-        
+
         if duration is not None:
             self.duration = duration
-            
+
     @property
     def duration(self) -> float:
         """
@@ -38,7 +38,7 @@ class Frame:
         Parameters:
 
         """
-        
+
         return self.__duration or self.DEFAULT_DURATION
 
     @duration.setter
@@ -81,7 +81,7 @@ class Frame:
 
     def __repr__(self) -> str:
         return f"Frame(grid={self.grid}, duration={self.duration})"
-    
+
     # width/height context for validation inherited from usage
     @property
     def width(self) -> int:

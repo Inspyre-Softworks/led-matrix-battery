@@ -9,7 +9,7 @@ from serial.tools.list_ports_common import ListPortInfo
 from led_matrix_battery.common.helpers import coerce_to_int
 from led_matrix_battery.led_matrix.helpers.device import get_devices
 from led_matrix_battery.led_matrix.constants import HEIGHT, WIDTH
-from led_matrix_battery.inputmodule.ledmatrix import render_matrix
+from led_matrix_battery.led_matrix import render_matrix
 from led_matrix_battery.led_matrix.errors import MalformedGridError
 
 

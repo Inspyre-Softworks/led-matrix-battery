@@ -3,7 +3,7 @@ from .base import Frame
 from serial.tools.list_ports_common import ListPortInfo
 from led_matrix_battery.led_matrix.display.grid.helpers import is_valid_grid
 from led_matrix_battery.led_matrix.display.animations.errors import MalformedGridError
-from led_matrix_battery.inputmodule.ledmatrix import render_matrix
+from led_matrix_battery.led_matrix import render_matrix
 
 
 running = False
@@ -45,4 +45,3 @@ def hold_pattern(dev, grid: List[List[int]], reapply_interval: float = 55.00) ->
         while running:
             cycles += 1
             render_matrix(dev, grid)
-            

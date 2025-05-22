@@ -1,7 +1,7 @@
 from time import sleep
 
 
-from led_matrix_battery.inputmodule.ledmatrix import (
+from led_matrix_battery.led_matrix import (
     brightness,
     pattern,
     checkerboard,

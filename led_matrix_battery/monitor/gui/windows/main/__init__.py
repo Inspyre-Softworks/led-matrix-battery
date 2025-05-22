@@ -1,7 +1,7 @@
 from .layout import Layout as MainWindowLayout
 from ..base import WindowBase
 from ...event.collection import EventCollection
-from led_matrix_battery.inputmodule.ledmatrix import brightness
+from led_matrix_battery.led_matrix import brightness
 from led_matrix_battery.led_matrix.helpers.device import DEVICES
 import time
 

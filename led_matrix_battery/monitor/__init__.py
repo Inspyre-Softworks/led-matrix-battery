@@ -26,7 +26,7 @@ from led_matrix_battery.log_engine import ROOT_LOGGER as PARENT_LOGGER, Loggable
 from led_matrix_battery.notify.sounds import PLUGGED_NOTIFY, UNPLUGGED_NOTIFY, Sound
 from ..led_matrix.helpers.device import check_device
 from led_matrix_battery.led_matrix.display.animations import goodbye_animation
-from led_matrix_battery.inputmodule.ledmatrix import (
+from led_matrix_battery.led_matrix import (
     animate,
     get_animate,
     pattern,
@@ -350,4 +350,3 @@ def run_power_monitor_threaded(
 ) -> PowerMonitor:
     monitor = Thread(target=run_power_monitor, args=args, kwargs=kwargs)
     monitor.start()
-
