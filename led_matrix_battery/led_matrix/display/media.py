@@ -10,8 +10,8 @@ import time
 import cv2
 from PIL import Image
 
-from .constants import WIDTH, HEIGHT
-from .hardware import CommandVals, send_command, send_serial
+from ..constants import WIDTH, HEIGHT
+from ..hardware import CommandVals, send_command, send_serial
 from .patterns import send_col, commit_cols
 from led_matrix_battery.led_matrix.helpers.status_handler import get_status, set_status
 

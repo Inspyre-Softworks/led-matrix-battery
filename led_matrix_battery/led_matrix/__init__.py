@@ -6,12 +6,12 @@ from .hardware import (
     percentage, send_command, send_serial, disconnect_dev, bootloader_jump,
     get_version
 )
-from .patterns import (
+from .display import (
     pattern, render_matrix, light_leds, checkerboard, every_nth_col,
-    every_nth_row, all_brightnesses, breathing, eq, send_col, commit_cols
+    every_nth_row, all_brightnesses, breathing, eq, send_col, commit_cols,
+    show_string, show_font, show_symbols,
+    image, image_greyscale, camera, video, pixel_to_brightness
 )
-from .text import show_string, show_font, show_symbols
-from .media import image, image_greyscale, camera, video, pixel_to_brightness
 
 
 def get_controllers():

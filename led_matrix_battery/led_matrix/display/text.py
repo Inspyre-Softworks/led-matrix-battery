@@ -6,7 +6,7 @@ It includes functions for rendering strings, fonts, and special symbols.
 """
 
 from led_matrix_battery.inputmodule import font
-from .hardware import CommandVals, send_command
+from ..hardware import CommandVals, send_command
 
 
 def show_string(dev, s):

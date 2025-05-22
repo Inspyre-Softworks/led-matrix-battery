@@ -13,9 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Reorganized code from `led_matrix_battery.inputmodule.ledmatrix` into multiple specialized modules:
   - `led_matrix_battery.led_matrix.hardware`: Low-level hardware communication functions
-  - `led_matrix_battery.led_matrix.patterns`: Pattern-related display functions
-  - `led_matrix_battery.led_matrix.text`: Text and symbol rendering functions
-  - `led_matrix_battery.led_matrix.media`: Image and video-related functions
+  - `led_matrix_battery.led_matrix.display.patterns`: Pattern-related display functions
+  - `led_matrix_battery.led_matrix.display.text`: Text and symbol rendering functions
+  - `led_matrix_battery.led_matrix.display.media`: Image and video-related functions
+- Moved all display-related functionality to the `led_matrix_battery.led_matrix.display` package
 - Updated all imports throughout the codebase to use the new module structure
 - Improved code organization with better separation of concerns
 
