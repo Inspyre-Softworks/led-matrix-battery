@@ -76,7 +76,8 @@ class PowerMonitor(Loggable):
             self.unplugged_alert = unplugged_alert
 
         self.dev.brightness = percentage_to_value(5)
-        self.__battery_check_interval = battery_check_interval or self.__check_interval
+        # Respect user-provided interval when initializing
+        self.battery_check_interval = battery_check_interval or self.__check_interval
 
     @property
     def battery_check_interval(self):

@@ -63,8 +63,11 @@ def check_device(device):
         log.error(emsg)
         raise TypeError(emsg)
 
-    if device.vid != 0x32AC and device.pid == 0x20:
-        log.warning(f'Given device is not supported. (VID: {device.vid}, PID: {device.pid})')
+    # Both the vendor and product ID must match to be supported
+    if device.vid != 0x32AC or device.pid != 0x20:
+        log.warning(
+            f'Given device is not supported. (VID: {device.vid}, PID: {device.pid})'
+        )
         return False
 
     return bool(test_connection(device.device))
