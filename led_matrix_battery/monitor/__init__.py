@@ -347,6 +347,19 @@ def run_power_monitor(
 def run_power_monitor_threaded(
         *args,
         **kwargs
-) -> PowerMonitor:
+) -> Thread:
+    """Run :func:`run_power_monitor` in a background thread.
+
+    Parameters
+    ----------
+    *args, **kwargs
+        Arguments passed directly to :func:`run_power_monitor`.
+
+    Returns
+    -------
+    Thread
+        The thread running the monitor.
+    """
     monitor = Thread(target=run_power_monitor, args=args, kwargs=kwargs)
     monitor.start()
+    return monitor
