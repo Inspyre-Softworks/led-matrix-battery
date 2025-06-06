@@ -31,7 +31,6 @@ build-backend = "poetry.core.masonry.api"
 ipython = "^9.1.0"
 prompt-toolkit = "^3.0.51"
 ptipython = "^1.0.1"
-ipyboost = {path = "../../Projects/iPyBoost/dist/ipyboost-1.0.0a5-py3-none-any.whl"}
 pytest = "^8.0.0"
 
 [tool.poetry.scripts]
