@@ -16,7 +16,7 @@ LOGGER = InspyLogger('LEDMatrixLib:PresetInstaller', console_level='debug', no_f
 API_URL = PROJECT_URLS['github_api']
 
 REQ_HEADERS = {
-    "Accept": "application./vnd.github.v3+json"
+    "Accept": "application/vnd.github.v3+json"
 }
 
 REPO_PRESETS_URL          = assemble_url('presets')
