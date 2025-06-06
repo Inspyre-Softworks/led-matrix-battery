@@ -8,6 +8,16 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
 
+[[tool.poetry.source]]
+name     = "pypi"
+priority = "primary"
+
+
+[[tool.poetry.source]]
+name     = "testpypi"
+url      = "https://test.pypi.org/simple/"
+priority = "explicit"
+
 [tool.poetry.dependencies]
 chime = ">=0.7.0,<0.8.0"
 pyserial = ">=3.5,<4.0"
@@ -31,7 +41,8 @@ build-backend = "poetry.core.masonry.api"
 ipython = "^9.1.0"
 prompt-toolkit = "^3.0.51"
 ptipython = "^1.0.1"
-pytest = "^8.0.0"
+ipyboost = { version = "1.0.0.a3", source = "testpypi"}
+
 
 [tool.poetry.scripts]
 python-path = "Scripts.python_path:main"
