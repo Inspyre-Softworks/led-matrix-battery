@@ -125,6 +125,7 @@ device = DEVICES[0]
 
 # Start monitoring in a background thread
 monitor = run_power_monitor_threaded(device)
+# ``monitor`` is a :class:`threading.Thread` instance
 ```
 
 ## Troubleshooting
