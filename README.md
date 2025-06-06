@@ -15,7 +15,7 @@ Key features:
 
 ## Hardware Requirements
 
-- LED Matrix display with dimensions 34x9 (compatible with the project's specifications)
+- LED Matrix display with dimensions 9x34 (compatible with the project's specifications)
 - Serial connection to the computer (USB)
 - The LED matrix should have the following hardware identifiers:
   - VID: 0x32AC
@@ -151,7 +151,7 @@ monitor = run_power_monitor_threaded(device)
 ### Animation Issues
 
 1. Verify that the LED matrix is functioning correctly.
-2. Check that the matrix dimensions match the expected 34x9 size.
+2. Check that the matrix dimensions match the expected 9x34 size.
 3. Try clearing the matrix and restarting the application.
 
 ## Contributing
