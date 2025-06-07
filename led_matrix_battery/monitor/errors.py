@@ -22,3 +22,14 @@ class PowerMonitorNotRunningError(PowerMonitorError):
 
         super().__init__(msg)
 
+
+class BatteryStateUnknownError(PowerMonitorError):
+    """
+    Raised when the state of the battery cannot be determined.
+    """
+    def __init__(self, message = None):
+        msg = 'The state of the battery cannot be determined!'
+        if message is not None:
+            msg += f'\n\nAdditional information from caller: {message}'
+
+        super().__init__(msg)

@@ -3,7 +3,11 @@ from ..base import WindowBase
 from ...event.collection import EventCollection
 from led_matrix_battery.led_matrix import brightness
 from led_matrix_battery.led_matrix.helpers.device import DEVICES
+from led_matrix_battery.monitor import PowerMonitor
 import time
+
+
+POWER_MONITOR = PowerMonitor(DEVICES[0])
 
 
 class MainWindow(WindowBase):

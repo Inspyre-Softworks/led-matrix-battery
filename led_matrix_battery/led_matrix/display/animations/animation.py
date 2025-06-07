@@ -10,15 +10,11 @@ from led_matrix_battery.led_matrix.display.animations.frame.base import Frame
 from led_matrix_battery.led_matrix.helpers import get_json_from_file
 
 
-
-
 class Animation:
     """
-    Represents an animation for the LED matrix.
-
-    An animation consists of a sequence of frames that are displayed
-    in order, with each frame having its own duration.
+    Represents a sequence of Frames with playback controls.
     """
+
     def __init__(
             self,
             frame_data: Optional[List[Dict[str, Any]]] = None,
@@ -32,72 +28,86 @@ class Animation:
         Initialize a new Animation instance.
 
         Parameters:
-            frame_data (Optional[List[Dict[str, Any]]]):
-                A list of dictionaries, each containing data for a single frame:
-
-                    - 'grid' (required):
-                      A 2D list of 0s and 1s representing the frame.
-
-                    - 'duration' (optional):
-                        A float value representing the duration of the frame in seconds.
-
-                If a frame dictionary does not specify a duration, the animation's
-                fallback_frame_duration will be used.
-
-            fallback_frame_duration (float, optional):
-                Default duration in seconds for frames that don't specify one (defaults to 0.33).
-
-            loop (bool, optional):
-                Whether the animation should loop when it reaches the end (optional, defaults to False).
-
-            thread_safe (bool, optional):
-                Whether the animation should be thread-safe (optional, defaults to False).
-                If True, the animation will be played in a separate thread, and the
-                `play()` method will block until the animation is finished.
-
-            breathe_on_pause (bool, optional):
-                Whether to breathe on pause (optional, defaults to False).
+            frame_data: list of dict or Frame to seed the animation.
+            fallback_frame_duration: default duration for frames.
+            loop: whether to loop at end.
+            thread_safe: run in a separate thread if True.
+            breathe_on_pause: breathe effect when paused.
+            devices: list of ListPortInfo LED devices.
         """
+        # 1) set all attributes to defaults
         self.__lock = None
-        self.__frames: List[Frame] = []
-        self.__breathing_thread = None
-        self.__breathe_on_pause: bool = False
-        self.__cursor: int = 0
-        self.__devices: List[ListPortInfo] = []
-        self.__making_thread_safe: bool = False
-        self.__playing: bool = False
         self.__thread_lock = None
         self.__pause_event = None
-        self.__thread_safe: bool = False
-        
+        self.__breathing_thread = None
+        self.__making_thread_safe = False
+        self.__breathe_on_pause = False
+        self.__thread_safe = False
+        self.__cursor = 0
+        self.__playing = False
+        self.__frames: List[Frame] = []
+        self.__devices: List[ListPortInfo] = []
+
+        # 2) configure devices & threading
+        self._configure_devices(devices, thread_safe, breathe_on_pause)
+
+        # 3) apply high-level settings
+        self.fallback_frame_duration = fallback_frame_duration
+        self.loop = loop
+
+        # 4) load any provided frames
+        if frame_data:
+            self._load_frames(frame_data)
+
+        # 5) reset cursor into valid range
+        self._reset_cursor()
+
+        self.breathe_on_pause = breathe_on_pause
+
+    def _configure_devices(
+            self,
+            devices: Optional[List[ListPortInfo]],
+            thread_safe: bool,
+            breathe_on_pause: bool
+    ) -> None:
+        """
+        Assign devices list, and if requested, make this animation thread-safe.
+        """
         if devices:
             self.devices = devices
 
         if thread_safe:
+            # note: property setter for breathe_on_pause handles validation
             self.breathe_on_pause = breathe_on_pause
             self.make_thread_safe()
 
-        # fallback_frame_duration property setter handles validation
-        self.fallback_frame_duration: float = fallback_frame_duration
-        self.loop: bool = loop  # loop property setter handles validation
+    def _load_frames(self, frame_data: List[Union[Dict[str, Any], Frame]]) -> None:
+        """
+        Normalize incoming frame_data (dicts or Frame instances) into self.__frames.
+        """
+        # detect if they already handed us Frame objects
+        first = frame_data[0]
+        if isinstance(first, Frame):
+            print('received list of frames')
+            self.__frames = list(frame_data)  # shallow copy
+            return
 
-        if frame_data:
-            for f_dict in frame_data:
-                # Frame.from_dict is expected to create a Frame instance.
-                # If f_dict lacks 'duration', Frame.from_dict should set
-                # the frame's duration to Frame.DEFAULT_DURATION (a sentinel).
-                frame_obj = Frame.from_dict(f_dict)
+        # otherwise expect a list of dicts
+        for f_dict in frame_data:
+            frame_obj = Frame.from_dict(f_dict)
 
-                # If the frame's duration is the sentinel, apply the animation's fallback.
-                if frame_obj.duration == Frame.DEFAULT_DURATION:
-                    frame_obj.duration = self.__fallback_frame_duration
-                self.__frames.append(frame_obj)
+            # if they left duration at DEFAULT, apply our fallback
+            if frame_obj.duration == Frame.DEFAULT_DURATION:
+                frame_obj.duration = self.fallback_frame_duration
 
-        # Ensure cursor is valid if frames exist, or 0 if no frames
+            self.__frames.append(frame_obj)
+
+    def _reset_cursor(self) -> None:
+        """Ensure cursor is valid (zero if no frames, else within range)."""
         if not self.__frames:
             self.__cursor = 0
-        elif self.__cursor >= len(self.__frames):  # Should not happen with fresh init
-            self.__cursor = 0
+        else:
+            self.__cursor %= len(self.__frames)
 
     @property
     def breathe_on_pause(self) -> bool:
@@ -252,12 +262,6 @@ class Animation:
 
         return self.__thread_lock
 
-
-
-    def __len__(self) -> int:
-        """Return the number of frames in the animation."""
-        return len(self.__frames)
-
     def make_thread_safe(self, breathe_on_pause: bool = False) -> None:
         if not self.is_thread_safe:
             self.__making_thread_safe = True
@@ -303,13 +307,11 @@ class Animation:
         if not devices and not self.devices:
             raise ValueError("No devices specified for playback.")
 
-
         # Store initial value for `cursor` to handle non-looping play
         # from mid-animation and to correctly play just once if not
         # looping.
 
         # The loop below will handle cursor advancement.
-
         self.is_playing = True
         while self.is_playing:
             # Iterate from current cursor to the end of frames
@@ -317,31 +319,36 @@ class Animation:
                 self.__cursor = i
                 current_frame = self.__frames[self.__cursor]
                 for device in devices:
-                    current_frame.play(device)  # Frame.play() is responsible for its own duration (e.g., sleep)
+                    try:
+                        current_frame.play(device)  # Frame.play() is responsible for its own duration (e.g., sleep)
+                    except KeyboardInterrupt:
+                        self.is_playing = False
+                        print('Received keyboard interrupt!')
+                        return
 
             if self.__loop:
                 self.__cursor = 0  # Reset for next loop iteration
                 # Continue with active_play = True
             else:
                 # If not looping, we've played to the end from the initial cursor.
-                active_play = False  # Stop the while loop
+                self.is_playing = False  # Stop the while loop
 
     def play_frame(self, frame_index: Optional[int] = None, device: Any = None) -> None:
         """
         Play a single frame of the animation.
 
         Parameters:
-            frame_index (Optional[int]): 
+            frame_index (Optional[int]):
                 Index of the frame to play.
                 If None, play the current frame.
-            
+
             device (Any, optional):
                 Device to play on.
 
         Raises:
             ValueError:
                 If the animation has no frames.
-            
+
             IndexError:
                 If frame_index is out of bounds.
         """
@@ -355,7 +362,12 @@ class Animation:
 
         # If frame_index was None, self.cursor is already the current frame.
         # If frame_index was valid, self.cursor is now updated.
-        self.__frames[self.__cursor].play(device)
+        try:
+            self.__frames[self.__cursor].play(device)
+        except KeyboardInterrupt:
+            self.is_playing = False
+            print('Received keyboard interrupt!')
+            return
 
     def resume(self) -> None:
         """Resumes playback from paused state."""
@@ -373,7 +385,7 @@ class Animation:
     def _advance_cursor(self, step: int) -> bool:
         """
         Internal helper to advance or rewind the cursor.
-        
+
         Returns:
              - :bool:`True` if `Animation.cursor` changed and is valid, False otherwise (e.g., at the end and not looping).
         """
@@ -405,7 +417,7 @@ class Animation:
                 if self.breathe_on_pause:
                     # Placeholder: replace with real brightness method for your device
                     brightness = 0.5 + 0.5 * abs((time.time() % 2) - 1)  # triangle wave
-                    # device.set_brightness(brightness)
+                    device.set_brightness(brightness)
             sleep(1)  # re-draw interval
 
     def next_frame(self, device: Any = None) -> None:
@@ -528,3 +540,6 @@ class Animation:
             loop=loop
         )
 
+    def __len__(self) -> int:
+        """Return the number of frames in the animation."""
+        return len(self.__frames)

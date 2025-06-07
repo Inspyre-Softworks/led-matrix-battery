@@ -1,13 +1,13 @@
 import hashlib
 from pathlib import Path
 from typing import Optional
-from led_matrix_battery.led_matrix.constants import PROJECT_URLS
 import requests
 from inspyre_toolbox.path_man import provision_path
 
 
-
 def download_presets():
+    from led_matrix_battery.led_matrix.constants import PROJECT_URLS
+
     url = PROJECT_URLS['github_api']
 
 
@@ -130,4 +130,3 @@ def download_file(url, local_path, headers=None):
     with open(local_path, 'wb') as f:
         for chunk in response.iter_content(chunk_size=8192):
             f.write(chunk)
-

@@ -1,5 +1,4 @@
 from .constants import *
-from .controller import LEDMatrixController
 from .hardware import (
     CommandVals, PatternVals, Game, GameControlVal, GameOfLifeStartParam,
     animate, get_animate, brightness, get_brightness, get_pwm_freq, pwm_freq,
@@ -12,6 +11,7 @@ from .display import (
     show_string, show_font, show_symbols,
     image, image_greyscale, camera, video, pixel_to_brightness
 )
+from .controller.controller import LEDMatrixController
 
 
 def get_controllers():

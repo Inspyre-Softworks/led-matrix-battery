@@ -12,6 +12,13 @@ from .layout import PixelGridLayout
 from led_matrix_battery.led_matrix import render_matrix
 
 
+def _normalize(key: Any) -> str:
+    s = str(key)
+    for ch in " <>,'()":
+        s = s.replace(ch, '_')
+    return s.strip('_')
+
+
 class PixelGrid:
     """
     LED matrix pixel grid UI with frame-by-frame animation.
@@ -122,18 +129,12 @@ class PixelGrid:
             event, _ = self.window.read()
             if event in (sg.WINDOW_CLOSED, 'Exit'):
                 break
-            handler = getattr(self, f'_handle_{self._normalize(event)}', None)
+            handler = getattr(self, f'_handle_{_normalize(event)}', None)
             if callable(handler):
                 handler(event)
             elif isinstance(event, tuple):
                 self._toggle_pixel(event)
         self.window.close()
-
-    def _normalize(self, key: Any) -> str:
-        s = str(key)
-        for ch in " <>,'()":
-            s = s.replace(ch, '_')
-        return s.strip('_')
 
     def _toggle_pixel(self, key: Tuple[int, int]) -> None:
         col, row = key

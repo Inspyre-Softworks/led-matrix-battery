@@ -1,5 +1,4 @@
-
-from led_matrix_battery.led_matrix.controller import LEDMatrixController
+from led_matrix_battery.led_matrix import LEDMatrixController
 from led_matrix_battery.led_matrix.helpers.device import DEVICES
 from threading import Thread
 
