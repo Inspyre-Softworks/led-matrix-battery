@@ -26,6 +26,9 @@ class EventCollection(Loggable):
         super().__init__(MOD_LOGGER)
         self.__events = []
 
+    def __iter__(self):
+        return iter(self.__events)
+
     def __len__(self):
         return len(self.__events)
 
