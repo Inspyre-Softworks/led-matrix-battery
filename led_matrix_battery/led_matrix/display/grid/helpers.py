@@ -75,6 +75,7 @@ def generate_blank_grid(
 
 
 def is_valid_grid(grid, width, height):
+
     # column-major: width columns of height rows each
     return (
         isinstance(grid, list)

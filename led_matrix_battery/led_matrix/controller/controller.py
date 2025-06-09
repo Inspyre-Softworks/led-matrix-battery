@@ -99,6 +99,7 @@ class LEDMatrixController(metaclass=MultitonMeta):
             default_brightness (Union[int, float, str]):
                 Default brightness level (0-100).
         """
+        self.__current_animation      = None
         if default_brightness is None:
             default_brightness = self.FACTORY_DEFAULT_BRIGHTNESS
         self.__default_brightness = self.__normalize_percent(default_brightness)
@@ -216,6 +217,10 @@ class LEDMatrixController(metaclass=MultitonMeta):
         return self._cmd_lock
 
     @property
+    def current_animation(self):
+        return self.__current_animation
+
+    @property
     def device(self) -> ListPortInfo:
         """
         Get the current LED matrix device.
@@ -298,6 +303,27 @@ class LEDMatrixController(metaclass=MultitonMeta):
     @property
     def name(self) -> str:
         return self.__name if self.__name is not None else self.device.name
+
+    def play_animation(self, animation):
+        from led_matrix_battery.led_matrix.display.animations.animation import Animation
+
+        if not isinstance(animation, Animation):
+            raise TypeError(f'Expected `Animation`; got `{type(animation)}`!')
+
+        self.__current_animation = animation
+
+        return animation.play(devices=[self])
+
+    def scroll_text(self, text: str, skip_end_space: bool = False, loop: bool = False):
+        from led_matrix_battery.led_matrix.display.animations.text.scroller import TextScroller
+        from led_matrix_battery.led_matrix.display.animations.animation import Animation
+        from led_matrix_battery.inputmodule import font
+
+        text_animation = Animation(TextScroller(font).scroll(text, skip_end_space))
+        text_animation.set_all_frame_durations(.03)
+        if loop:
+            text_animation.loop = True
+        return self.play_animation(text_animation)
 
     @property
     def set_brightness_on_init(self):
