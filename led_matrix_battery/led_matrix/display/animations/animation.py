@@ -6,6 +6,7 @@ from pathlib import Path
 
 from serial.tools.list_ports_common import ListPortInfo
 
+from led_matrix_battery.led_matrix import LEDMatrixController
 from led_matrix_battery.led_matrix.display.animations.frame.base import Frame
 from led_matrix_battery.led_matrix.helpers import get_json_from_file
 
@@ -261,6 +262,42 @@ class Animation:
             raise RuntimeError("Thread lock is not available in non-thread-safe mode.")
 
         return self.__thread_lock
+    
+    def __check_ready(self) -> bool:
+        if self.is_empty:
+            raise ValueError("Cannot play an animation with no frames.")
+
+        if not self.__cursor:
+            self.__cursor = 0
+
+    def __clear_screen(self, devices: Optional[List] = None):
+        devices = devices if devices is not None else self.devices
+
+        for dev in devices:
+            dev.clear()
+            
+    def __normalize_devices(self, devices):
+
+        if devices is None:
+            if self.devices is None:
+                raise ValueError("You need to provide a device!")
+            else:
+                devices = self.devices
+
+        if not isinstance(devices, list):
+            devices = [devices]
+
+        normalized = []
+
+        for device in devices:
+            if isinstance(device, LEDMatrixController):
+                normalized.append(device)
+            elif isinstance(device, ListPortInfo):
+                normalized.append(LEDMatrixController(device))
+            else:
+                raise TypeError("Devices must be either LEDMatrixController or ListPortInfo objects.")
+
+        return normalized
 
     def make_thread_safe(self, breathe_on_pause: bool = False) -> None:
         if not self.is_thread_safe:
@@ -286,7 +323,7 @@ class Animation:
                 )
                 self.__breathing_thread.start()
 
-    def play(self, devices: Optional[List[ListPortInfo]] = None) -> None:
+    def play(self, devices: Optional[List[LEDMatrixController]] = None, skip_clear_screen: bool = False) -> None:
         """
         Play the animation on the LED matrix.
 
@@ -294,46 +331,41 @@ class Animation:
         If `loop` is True, this animation repeats indefinitely.
 
         Parameters:
-            devices (Optional[List[ListPortInfo]]):
+            devices (Optional[List[LEDMatrixController]]):
                 Device to play on (passed to `Frame.play()`).
+
+            skip_clear_screen (Optional[bool]):
+                Skip clearing screen before playing.
 
         Raises:
             ValueError:
                 If the animation has no frames.
         """
-        if self.is_empty:
-            raise ValueError("Cannot play an animation with no frames.")
-
-        if not devices and not self.devices:
-            raise ValueError("No devices specified for playback.")
-
-        # Store initial value for `cursor` to handle non-looping play
-        # from mid-animation and to correctly play just once if not
-        # looping.
+        self.__check_ready()
+        devices = self.__normalize_devices(devices)
 
         # The loop below will handle cursor advancement.
         self.is_playing = True
         while self.is_playing:
             # Iterate from current cursor to the end of frames
             for i in range(self.__cursor, len(self.__frames)):
-                self.__cursor = i
-                current_frame = self.__frames[self.__cursor]
-                for device in devices:
-                    try:
-                        current_frame.play(device)  # Frame.play() is responsible for its own duration (e.g., sleep)
-                    except KeyboardInterrupt:
-                        self.is_playing = False
-                        print('Received keyboard interrupt!')
-                        return
+                try:
+                    self.play_frame(i, devices)  # Frame.play() is responsible for its own duration (e.g., sleep)
+                except KeyboardInterrupt:
+                    self.is_playing = False
+                    print('Received keyboard interrupt!')
+                    return
 
             if self.__loop:
-                self.__cursor = 0  # Reset for next loop iteration
-                # Continue with active_play = True
+                self.rewind()
             else:
                 # If not looping, we've played to the end from the initial cursor.
                 self.is_playing = False  # Stop the while loop
 
-    def play_frame(self, frame_index: Optional[int] = None, device: Any = None) -> None:
+            if not skip_clear_screen:
+                self.__clear_screen(devices)
+
+    def play_frame(self, frame_index: Optional[int] = None, devices: Any = None) -> None:
         """
         Play a single frame of the animation.
 
@@ -342,8 +374,8 @@ class Animation:
                 Index of the frame to play.
                 If None, play the current frame.
 
-            device (Any, optional):
-                Device to play on.
+            devices (Any, optional):
+                Devices to play on.
 
         Raises:
             ValueError:
@@ -363,11 +395,14 @@ class Animation:
         # If frame_index was None, self.cursor is already the current frame.
         # If frame_index was valid, self.cursor is now updated.
         try:
-            self.__frames[self.__cursor].play(device)
+            for device in devices:
+                self.frames[self.cursor].play(device)
+
         except KeyboardInterrupt:
             self.is_playing = False
             print('Received keyboard interrupt!')
             return
+
 
     def resume(self) -> None:
         """Resumes playback from paused state."""
@@ -381,6 +416,19 @@ class Animation:
         if self.__breathing_thread and self.__breathing_thread.is_alive():
             self.__breathing_thread.join(timeout=0.1)
             self.__breathing_thread = None
+
+    def rewind(self, pos=None):
+        if pos:
+            if not isinstance(pos, int):
+                raise TypeError('"pos" must be an integer!')
+
+            if pos not in range(len(self.frames) + 1):
+                raise ValueError('Frame out of range')
+
+            if pos > self.cursor:
+                raise ValueError('Maybe you meant "fast_forward"... Cursor target position greater than current...')
+
+        self.cursor = pos if pos is not None else 0
 
     def _advance_cursor(self, step: int) -> bool:
         """

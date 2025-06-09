@@ -40,7 +40,8 @@ class Layout(Loggable, metaclass=SingletonABCMeta):
     @property
     @abstractmethod
     def BLUEPRINT(self):
-        pass
+        """Return a 2D list of PySimpleGUI elements used to build this layout."""
+        raise NotImplementedError
 
     def __init__(self, with_logging_parent=None):
         if with_logging_parent is None:
@@ -105,7 +106,11 @@ class Layout(Loggable, metaclass=SingletonABCMeta):
             log.warning('Attempted to build layout when it was already built!')
             raise LayoutAlreadyBuiltError()
 
-        self.__layout   = copy.deepcopy(self.BLUEPRINT)
+        blueprint = self.BLUEPRINT
+        if not isinstance(blueprint, list) or not all(isinstance(r, list) for r in blueprint):
+            raise LayoutError('BLUEPRINT must be a 2D list of PySimpleGUI elements.')
+
+        self.__layout   = copy.deepcopy(blueprint)
         log.debug('Layout built successfully.')
         self.__is_built = True
         log.debug('Marked layout as built.')

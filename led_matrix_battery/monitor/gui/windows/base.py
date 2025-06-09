@@ -14,7 +14,9 @@ class WindowBase(metaclass=SingletonABCMeta):
 
     @property
     def EVENT_COLLECTION(self):
-        pass
+        if self._event_collection is None:
+            self._event_collection = EventCollection(self)
+        return self._event_collection
 
     @property
     @abstractmethod
