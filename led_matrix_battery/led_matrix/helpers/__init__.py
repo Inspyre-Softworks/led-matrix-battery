@@ -4,6 +4,9 @@ from inspyre_toolbox.path_man import provision_path
 
 from led_matrix_battery.led_matrix.constants import FWK_MAGIC, RESPONSE_SIZE
 from serial.tools.list_ports_common import ListPortInfo
+from threading import Thread
+
+from led_matrix_battery.led_matrix import LEDMatrixController
 
 import json
 from pathlib import Path
@@ -169,16 +172,31 @@ def send_serial(dev: ListPortInfo, s: 'serial.Serial', command: ByteString) -> N
 
 def identify_devices(devices: Optional[List[ListPortInfo]] = None) -> None:
     """
-    Identify LED matrix devices.
 
-    This function is a placeholder for future implementation.
+    Identify LED matrix devices by flashing an identification message on each
+    connected matrix.  If no specific devices are provided, all detected devices
+    are used.
 
     Args:
-        devices (Optional[List[ListPortInfo]], optional): List of devices to identify. 
-            Defaults to None, which means all available devices.
+        devices (Optional[List[ListPortInfo]], optional):
+            List of devices to identify. Defaults to ``None`` which will use all
+            detected devices.
     """
-    # TODO: Implement device identification
-    pass
+
+    if devices is None:
+        from led_matrix_battery.led_matrix.helpers.device import DEVICES
+        devices = DEVICES
+
+    controllers = [LEDMatrixController(dev, 100) for dev in devices]
+
+    threads = []
+    for controller in controllers:
+        t = Thread(target=controller.identify)
+        threads.append(t)
+        t.start()
+
+    for t in threads:
+        t.join()
 
 
 running = NegateSwitch(False)

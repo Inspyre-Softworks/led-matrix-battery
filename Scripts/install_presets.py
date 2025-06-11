@@ -1,5 +1,6 @@
 from typing import List, Dict, Optional, Union
 from pathlib import Path
+import argparse
 import requests
 
 from tqdm import tqdm
@@ -272,5 +273,33 @@ def save_file(file_path: Path, data, overwrite: bool = False):
     with open(file_path, 'w') as f:
         f.write(data)
         log.debug(f'Saved file: {file_path}')
+
+
+def build_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Install LED matrix grid presets")
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite existing preset files if they already exist",
+    )
+    parser.add_argument(
+        "--no-progress",
+        action="store_true",
+        help="Disable progress bars during download",
+    )
+    return parser
+
+
+def main(argv: Optional[List[str]] = None) -> None:
+    args = build_arg_parser().parse_args(argv)
+
+    download_grid_designs(
+        overwrite_existing=args.overwrite,
+        with_prog_bars=not args.no_progress,
+    )
+
+
+if __name__ == "__main__":
+    main()
 
 

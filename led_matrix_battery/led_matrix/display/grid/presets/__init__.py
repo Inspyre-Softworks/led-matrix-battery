@@ -16,6 +16,8 @@ Description:
 """
 from pathlib import Path
 from typing import Optional
+
+from led_matrix_battery.common.helpers import verify_checksum
 from led_matrix_battery.led_matrix.constants import PRESETS_DIR
 from led_matrix_battery.led_matrix.display.grid.presets.manifest import GridPresetManifest
 
@@ -37,7 +39,26 @@ def validate_preset_files(preset_dir_path: Optional[Path] = None, manifest: Opti
         bool: True if all preset files are valid, False otherwise.
 
     Note:
-        This function is currently a placeholder and does not perform any validation.
+        Validation checks that each file listed in the manifest exists in the
+        preset directory and that its checksum matches the value stored in the
+        manifest.
     """
-    # TODO: Implement preset file validation
-    pass
+
+    preset_dir_path = preset_dir_path or PRESETS_DIR
+    manifest = manifest or PRESETS_MANIFEST
+
+    if not isinstance(preset_dir_path, Path):
+        preset_dir_path = Path(preset_dir_path)
+
+    all_valid = True
+
+    for filename, checksum in manifest.as_dict().items():
+        file_path = preset_dir_path / filename
+        if not file_path.exists():
+            all_valid = False
+            break
+        if not verify_checksum(checksum, file_path):
+            all_valid = False
+            break
+
+    return all_valid

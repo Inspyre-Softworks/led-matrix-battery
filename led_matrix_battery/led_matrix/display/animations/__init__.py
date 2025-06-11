@@ -9,9 +9,6 @@ from led_matrix_battery.led_matrix import (
 )
 
 
-# TODO: Decouple from led_matrix_battery.inputmodule in favor of new code in led_matrix_battery.hardware
-
-
 def clear(dev):
     brightness(dev, 0)
 

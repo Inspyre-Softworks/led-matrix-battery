@@ -47,6 +47,7 @@ ipyboost = { version = "1.0.0.a3", source = "testpypi"}
 [tool.poetry.scripts]
 python-path = "Scripts.python_path:main"
 led-matrix-identify = 'Scripts.identify_matrices:main'
+install-presets = "Scripts.install_presets:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
