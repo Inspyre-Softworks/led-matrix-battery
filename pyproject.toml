@@ -1,12 +1,17 @@
 [project]
 name = "led-matrix-battery"
-version = "0.1.0"
+version = "1.0.0.dev1"
 description = ""
 authors = [
-    {name = "Taylor B.",email = "tayjaybabee@gmail.com"}
+    {name = "Taylor B.",email = "t.blackstone@inspyre.tech"}
 ]
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
+include = [
+    {path = 'common/meta/version/VERSION', format = 'text'},
+    {path = 'LICENSE.md', format = 'text'},
+    {path = 'README.md', format = 'text'}
+]
 
 [[tool.poetry.source]]
 name     = "pypi"
