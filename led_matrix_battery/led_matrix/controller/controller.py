@@ -35,7 +35,7 @@ from led_matrix_battery.led_matrix.display.grid.helpers import generate_blank_gr
 from led_matrix_battery.led_matrix.display.animations.effects.breather import Breather
 from led_matrix_battery.led_matrix.display.grid import Grid
 from led_matrix_battery.led_matrix.errors import InvalidBrightnessError
-from led_matrix_battery.inputmodule.ledmatrix import CommandVals, send_command
+from led_matrix_battery.led_matrix.hardware import CommandVals, send_command
 
 
 COMMANDS = CommandVals
@@ -317,7 +317,7 @@ class LEDMatrixController(metaclass=MultitonMeta):
     def scroll_text(self, text: str, skip_end_space: bool = False, loop: bool = False):
         from led_matrix_battery.led_matrix.display.animations.text.scroller import TextScroller
         from led_matrix_battery.led_matrix.display.animations.animation import Animation
-        from led_matrix_battery.inputmodule import font
+        from led_matrix_battery.led_matrix import fonts as font
 
         text_animation = Animation(TextScroller(font).scroll(text, skip_end_space))
         text_animation.set_all_frame_durations(.03)
