@@ -187,11 +187,19 @@ def identify_devices(devices: Optional[List[ListPortInfo]] = None) -> None:
         from led_matrix_battery.led_matrix.helpers.device import DEVICES
         devices = DEVICES
 
+    import logging
+
     controllers = [LEDMatrixController(dev, 100) for dev in devices]
+
+    def safe_identify(controller):
+        try:
+            controller.identify()
+        except Exception as e:
+            logging.exception(f"Exception in identify thread for controller {controller}: {e}")
 
     threads = []
     for controller in controllers:
-        t = Thread(target=controller.identify)
+        t = Thread(target=safe_identify, args=(controller,))
         threads.append(t)
         t.start()
 
