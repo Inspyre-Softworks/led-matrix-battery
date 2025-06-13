@@ -1,12 +1,11 @@
-from pathlib import Path
 from typing import List
+import json
+import importlib.resources
 
 from led_matrix_battery.assets.font_map import FontMap
-import json
 
-# Load the default font map shipped with the package
-_DEFAULT_FONT_MAP_PATH = Path(__file__).resolve().parents[1] / "assets" / "char_map.json"
-with open(_DEFAULT_FONT_MAP_PATH, "r", encoding="utf-8") as f:
+# Load the default font map shipped with the package using importlib.resources
+with importlib.resources.open_text("led_matrix_battery.assets", "char_map.json", encoding="utf-8") as f:
     _FONT_DATA = json.load(f)
 FONT_MAP = FontMap(font_map=_FONT_DATA)
 
