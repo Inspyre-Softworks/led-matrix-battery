@@ -1,12 +1,12 @@
 from time import sleep
 
 
-from led_matrix_battery.led_matrix import (
-    brightness,
-    pattern,
-    checkerboard,
-    show_string,
-)
+from led_matrix_battery.led_matrix import brightness
+from led_matrix_battery.led_matrix.display.patterns.pattern import Pattern
+
+
+from led_matrix_battery.led_matrix.display.patterns.helpers import checkerboard
+from led_matrix_battery.led_matrix.display.helpers.matrix import show_string
 
 
 # TODO: Decouple from led_matrix_battery.inputmodule in favor of new code in led_matrix_battery.hardware

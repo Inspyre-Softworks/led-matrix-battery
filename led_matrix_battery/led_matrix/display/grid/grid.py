@@ -116,12 +116,36 @@ class Grid:
     @classmethod
     def load_blank_grid(
         cls,
-        width:      int = MATRIX_WIDTH,
-        height:     int = MATRIX_HEIGHT,
-        fill_value: int = 0
-    ) -> List[List[int]]:
+        width:          int = MATRIX_WIDTH,
+        height:         int = MATRIX_HEIGHT,
+        fill_value:     int = 0,
+        return_2d_list: bool = False
+    ) -> 'Grid':
         """Return a new blank column-major grid."""
-        return generate_blank_grid(width=width, height=height, fill_value=fill_value)
+        grid = generate_blank_grid(width, height, fill_value)
+        return grid if return_2d_list else cls(init_grid=grid)
+
+    @classmethod
+    def load_full_grid(
+        cls,
+        width:          int = MATRIX_WIDTH,
+        height:         int = MATRIX_HEIGHT,
+        return_2d_list: bool = False
+    ):
+        """
+        Return a fully lit column-major grid.
+
+        Parameters:
+            width (int):
+                How wide - in LED count - is the matrix. Optional, defaults to 9.
+
+            height (int):
+                How tall - in LED count - is the matrix. Optional, defaults to 34.
+
+            return_2d_list (bool):
+                Return a column-major 2d list instead of a Grid object.
+        """
+        return cls.load_blank_grid(width, height, fill_value=1, return_2d_list=return_2d_list)
 
     @classmethod
     def from_spec(

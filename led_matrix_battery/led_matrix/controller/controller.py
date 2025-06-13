@@ -26,11 +26,14 @@ from inspyre_toolbox.syntactic_sweets.classes.decorators.aliases import add_alia
 from serial.tools.list_ports_common import ListPortInfo
 
 from led_matrix_battery.common.helpers import coerce_to_int
-from led_matrix_battery.led_matrix import animate, SLOT_MAP, render_matrix, pattern as _set_pattern_raw, \
-    percentage as _show_percentage_raw, show_string as _show_string_raw, brightness as _set_brightness_raw
+from led_matrix_battery.led_matrix import animate, SLOT_MAP, \
+    percentage as _show_percentage_raw, brightness as _set_brightness_raw
 from led_matrix_battery.led_matrix.controller import MultitonMeta
 from led_matrix_battery.led_matrix.controller.helpers.threading import synchronized
 from led_matrix_battery.led_matrix.display.grid.helpers import generate_blank_grid
+from led_matrix_battery.led_matrix.display.helpers.matrix import render_matrix, \
+    pattern as _set_pattern_raw, \
+    show_string as _show_string_raw
 
 from led_matrix_battery.led_matrix.display.animations.effects.breather import Breather
 from led_matrix_battery.led_matrix.display.grid import Grid
@@ -169,8 +172,9 @@ class LEDMatrixController(metaclass=MultitonMeta):
         Returns:
             bool: True if the device is animating, False otherwise.
         """
-        return bool(send_command(self.device, COMMANDS.Animate, with_response=True)[0])
-        # return animate(self.device)
+        res = send_command(self.device, COMMANDS.Animate, with_response=True)
+
+        return bool(res[0]) if res else False
 
     @property
     def breather(self) -> Breather:
@@ -582,8 +586,11 @@ class LEDMatrixController(metaclass=MultitonMeta):
 
         return percent
 
+    def send_command(self, command, *args, with_response=False):
+        return send_command(self.device, command, [*args], with_response=with_response)
+
     def __repr__(self) -> str:
-        """
+        """)
         Return a string representation of the LEDMatrixController.
 
         Returns:

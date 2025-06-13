@@ -21,6 +21,15 @@ def load_frames_from_file(path: Union[str, Path]) -> List['Frame']:
 
     path = provision_path(path)
 
+    if not path.is_file():
+        raise ValueError(f"{path} must be a file.")
+
+    raw = get_json_from_file(path)
+    if not is_valid_frames(raw, 9, 34):
+        raise ValueError("Invalid frames.")
+
+    return [Frame(**f) for f in raw]
+
 
 
 def is_valid_frames(raw: Any, width: int, height: int) -> bool:
@@ -49,7 +58,7 @@ def is_valid_frames(raw: Any, width: int, height: int) -> bool:
     return (
             isinstance(raw, list)
             and len(raw) > 0
-            and all(is_valid_grid(frame, width, height) for frame in raw)
+            and all(is_valid_grid(frame['grid'], width, height) for frame in raw)
     )
 
 

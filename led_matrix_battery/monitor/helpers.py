@@ -31,20 +31,16 @@ def get_plugged_status(battery_info: Optional[psutil._common.sbattery] = None) -
         - :func:`psutil.sensors_battery`
         - :exc:`BatteryStateUnknownError`
     """
-    if battery_info is not None:
-        if not isinstance(battery_info, psutil._common.sbattery):
-            raise TypeError('Expected a `psutil._common.sbattery` instance')
-    else:
-        from psutil import sensors_battery
-        battery_info = sensors_battery()
-    if not isinstance(battery_info, psutil._common.sbattery):
-        raise TypeError('Expected a `psutil._common.sbattery` instance')
-
     try:
         battery_info = battery_info or get_battery_info()
     except Exception as e:
         raise BatteryStateUnknownError('Could not determine whether the system is plugged in or not due to an ' \
                                        f'error: {e}') from e
+
+    if not isinstance(battery_info, psutil._common.sbattery):
+        raise TypeError(f'The provided "battery_info" must be a "psutil._common.sbattery", but was "{type(battery_info)}".')
+
+    return battery_info.power_plugged
 
 
 def check_plugged_in():

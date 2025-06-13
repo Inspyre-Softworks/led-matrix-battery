@@ -5,8 +5,6 @@ from time import sleep
 
 from typing import List, Any, Union
 from led_matrix_battery.led_matrix.display.grid.helpers import is_valid_grid
-
-from led_matrix_battery.led_matrix import render_matrix
 from led_matrix_battery.led_matrix.display.grid.grid import Grid
 from led_matrix_battery.led_matrix.display.grid.helpers import generate_blank_grid
 

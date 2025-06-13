@@ -3,10 +3,16 @@ from .base import Frame
 from serial.tools.list_ports_common import ListPortInfo
 from led_matrix_battery.led_matrix.display.grid.helpers import is_valid_grid
 from led_matrix_battery.led_matrix.display.animations.errors import MalformedGridError
-from led_matrix_battery.led_matrix import render_matrix
 
 
 running = False
+
+
+def hold_frame(controller, frame: Frame):
+    global running
+    running = True
+    while running:
+        frame.play(controller)
 
 
 def hold_pattern(dev, grid: List[List[int]], reapply_interval: float = 55.00) -> None:

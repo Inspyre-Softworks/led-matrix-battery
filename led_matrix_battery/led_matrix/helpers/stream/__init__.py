@@ -3,7 +3,7 @@ from serial import Serial, SerialException
 
 from led_matrix_battery.led_matrix.constants import *
 from led_matrix_battery.led_matrix.helpers.status_handler import get_status
-from led_matrix_battery.led_matrix import send_col
+from ...display.helpers.col import send_col
 
 from .errors import *
 from ...errors.matrix import MatrixConnectionError, MatrixInUseError

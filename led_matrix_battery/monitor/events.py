@@ -48,13 +48,17 @@ def __handle_device_plugged_in(power_monitor):
         pm.controller.clear()
         pm._last_state = True
 
+    pm.controller.draw_pattern('Zigzag')
+    pm.controller.animate()
+
 
 def __handle_device_unplugged(power_monitor):
     pm = power_monitor
-    if pm.unplugged and not pm.controller.is_animating and (pm.last_state or pm.last_state is None):
+    if pm.unplugged and pm.controller.is_animating and (pm.last_state or pm.last_state is None):
         pm.notify('unplugged')
         pm.controller.clear()
         pm._last_state = False
+        pm.controller.halt_animation()
 
     pm.controller.draw_percentage(get_battery_percentage())
 

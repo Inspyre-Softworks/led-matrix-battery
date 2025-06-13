@@ -7,6 +7,7 @@ including functions to convert between different device location formats.
 from serial import Serial, SerialException
 from serial.tools import list_ports
 from led_matrix_battery.log_engine import ROOT_LOGGER
+from led_matrix_battery.led_matrix.constants import VID as EXPECTED_VID, PID as EXPECTED_PID
 
 
 MOD_LOGGER = ROOT_LOGGER.get_child('led_matrix.helpers.device')

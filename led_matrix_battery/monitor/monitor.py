@@ -10,15 +10,16 @@ from inspyre_toolbox.syntactic_sweets.classes import validate_type
 from serial.tools.list_ports_common import ListPortInfo
 
 from led_matrix_battery.common.helpers import percentage_to_value
-from led_matrix_battery.led_matrix import pattern, get_animate, animate, percentage, LEDMatrixController
+from led_matrix_battery.led_matrix import get_animate, animate, LEDMatrixController
 from led_matrix_battery.led_matrix.display.animations import goodbye_animation
 from led_matrix_battery.led_matrix.helpers.device import check_device
 from led_matrix_battery.monitor import DEFAULT_PLUGGED_SOUND, DEFAULT_UNPLUGGED_SOUND, MOD_LOGGER, get_plugged_status, \
     PowerMonitorNotRunningError, ECH
 from led_matrix_battery.notify.sounds import Sound
-from led_matrix_battery.monitor.helpers import get_battery_percentage
+from led_matrix_battery.common.decorators.singleton import singleton
 
 
+@singleton
 class PowerMonitor(Loggable):
 
     # Properties
@@ -46,6 +47,10 @@ class PowerMonitor(Loggable):
         self.__unplugged_alert        = None
         self.__controller             = None
 
+        if isinstance(device, list):
+            self.set_device(device[0])
+            self._aux_device = device[1]
+
         self.set_device(device)
 
         # Set some settings
@@ -58,6 +63,10 @@ class PowerMonitor(Loggable):
 
         self.dev.brightness = percentage_to_value(5)
         self.__battery_check_interval = battery_check_interval or self.DEFAULT_CHECK_INTERVAL
+
+    @property
+    def aux_device(self):
+        return self._aux_device if hasattr(self, '_aux_device') else None
 
     @property
     def battery_check_interval(self):
@@ -180,7 +189,11 @@ class PowerMonitor(Loggable):
         if not isinstance(new, bool):
             raise TypeError(f'running must be of type `bool`, not {type(new)}')
 
-        self._running = new
+        if must_stop := self.running != new and self.running:
+            self.stop(without_salutation=True)
+        else:
+            self._running = new
+
 
     @property
     def run_time(self):
@@ -195,7 +208,7 @@ class PowerMonitor(Loggable):
         if not hasattr(self, 'start_time'):
             raise PowerMonitorNotRunningError('Monitor hasn\'t even been started yet!')
 
-        recent = self.stop_time if hasattr(self, 'stop_time') else time.time()
+        recent = self.stop_time if (hasattr(self, 'stop_time') and self.stop_time is not None) else time.time()
         return recent - self.start_time
 
     @property
@@ -379,6 +392,8 @@ class PowerMonitor(Loggable):
             log.warning('Monitor is already running')
             raise RuntimeError('Monitor is already running')
 
+        self.controller.clear()
+
         self._running = True
         log.debug('Set running to True')
         self.__start_time = time.time()
@@ -386,7 +401,8 @@ class PowerMonitor(Loggable):
         if threaded:
             t = Thread(target=self.run, daemon=True)
             t.start()
-            ECH.register_handler(self.stop, kwargs={'reason': 'Program exited.'})
+            ECH.register_handler(self.stop, reason='Thread exit.')
+            return t
 
         try:
             self.run()
@@ -411,8 +427,14 @@ class PowerMonitor(Loggable):
         else:
             log.debug('Stopping monitor...')
         self.__stop_time = time.time()
-        self.running = False
+        self._running = False
         log.debug('"running" flag set to False...waiting for thread to finish')
+
+        if self.controller.animating:
+            log.debug('Halting controller animation...')
+            self.controller.halt_animation()
+
+        self.controller.clear()
 
         if reason:
             log.info(f'Stopping monitor due to: {reason}')
@@ -429,3 +451,5 @@ class PowerMonitor(Loggable):
 
         log.debug('Clearing LED matrix...')
         self.controller.clear()
+        ECH.unregister_all()
+        log.debug('Unregistered handler for stop()')

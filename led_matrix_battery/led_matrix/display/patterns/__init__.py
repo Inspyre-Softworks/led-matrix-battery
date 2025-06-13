@@ -5,14 +5,16 @@ This module provides functions for displaying various patterns on the LED matrix
 It includes functions for displaying checkerboards, gradients, and other visual patterns.
 """
 
-import serial
 import time
 
-from ..constants import WIDTH, HEIGHT
-from ..hardware import (
+from .helpers import checkerboard, every_nth_col, every_nth_row, all_brightnesses
+from ..helpers.col import commit_cols, send_col
+from ...constants import WIDTH, HEIGHT
+from ...hardware import (
     CommandVals, PatternVals, send_command, send_serial,
     brightness, get_status, set_status
 )
+from .helpers import checkerboard, every_nth_col, every_nth_row
 
 
 def pattern(dev, p):
@@ -61,69 +63,6 @@ def pattern(dev, p):
         checkerboard(dev, 4)
     else:
         print("Invalid pattern")
-
-
-def send_col(dev, s, x, vals):
-    """Stage greyscale values for a single column. Must be committed with commit_cols()"""
-    from ..hardware import FWK_MAGIC
-    command = FWK_MAGIC + [CommandVals.StageGreyCol, x] + vals
-    send_serial(dev, s, command)
-
-
-def commit_cols(dev, s):
-    """Commit the changes from sending individual cols with send_col(), displaying the matrix.
-    This makes sure that the matrix isn't partially updated."""
-    from ..hardware import FWK_MAGIC
-    command = FWK_MAGIC + [CommandVals.DrawGreyColBuffer, 0x00]
-    send_serial(dev, s, command)
-
-
-def checkerboard(dev, n):
-    with serial.Serial(dev.device, 115200) as s:
-        for x in range(0, WIDTH):
-            vals = (([0xFF] * n) + ([0x00] * n)) * int(HEIGHT / 2)
-            if x % (n * 2) < n:
-                # Rotate once
-                vals = vals[n:] + vals[:n]
-
-            send_col(dev, s, x, vals)
-        commit_cols(dev, s)
-
-
-def every_nth_col(dev, n):
-    with serial.Serial(dev.device, 115200) as s:
-        for x in range(0, WIDTH):
-            vals = [(0xFF if x % n == 0 else 0) for _ in range(HEIGHT)]
-
-            send_col(dev, s, x, vals)
-        commit_cols(dev, s)
-
-
-def every_nth_row(dev, n):
-    with serial.Serial(dev.device, 115200) as s:
-        for x in range(0, WIDTH):
-            vals = [(0xFF if y % n == 0 else 0) for y in range(HEIGHT)]
-
-            send_col(dev, s, x, vals)
-        commit_cols(dev, s)
-
-
-def all_brightnesses(dev):
-    """Increase the brightness with each pixel.
-    Only 0-255 available, so it can't fill all 306 LEDs"""
-    with serial.Serial(dev.device, 115200) as s:
-        for x in range(0, WIDTH):
-            vals = [0 for _ in range(HEIGHT)]
-
-            for y in range(HEIGHT):
-                brightness = x + WIDTH * y
-                if brightness > 255:
-                    vals[y] = 0
-                else:
-                    vals[y] = brightness
-
-            send_col(dev, s, x, vals)
-        commit_cols(dev, s)
 
 
 def breathing(dev):
