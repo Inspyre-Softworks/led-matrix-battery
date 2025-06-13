@@ -189,9 +189,21 @@ def video(dev, video_file):
 
             processed.append(cropped)
 
-        # Write it out to the module one frame at a time
-        # TODO: actually control for framerate
+        # Determine frame delay based on the video's FPS.  Default to 30 FPS if
+        # the information isn't available.
+        fps = capture.get(cv2.CAP_PROP_FPS)
+        try:
+            fps = float(fps)
+            if fps <= 0 or fps != fps:
+                raise ValueError
+        except Exception:
+            fps = 30.0
+        frame_delay = 1.0 / fps
+
+        # Write it out to the module one frame at a time while respecting the
+        # frame rate.
         for frame in processed:
+            start = time.time()
             for x in range(0, cropped.shape[1]):
                 vals = [0 for _ in range(HEIGHT)]
 
@@ -200,6 +212,10 @@ def video(dev, video_file):
 
                 send_col(dev, s, x, vals)
             commit_cols(dev, s)
+
+            elapsed = time.time() - start
+            if frame_delay > elapsed:
+                time.sleep(frame_delay - elapsed)
 
 
 def pixel_to_brightness(pixel):

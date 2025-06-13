@@ -132,7 +132,7 @@ You can customize animations by creating or modifying preset files in the `prese
 
 To install sample presets:
 ```bash
-python Scripts/install_presets.py
+install-presets
 ```
 
 ## Troubleshooting

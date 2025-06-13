@@ -5,7 +5,7 @@ This module provides functions for displaying text and symbols on the LED matrix
 It includes functions for rendering strings, fonts, and special symbols.
 """
 
-from led_matrix_battery.inputmodule import font
+from led_matrix_battery.led_matrix import fonts as font
 from ..hardware import CommandVals, send_command
 
 

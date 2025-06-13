@@ -93,7 +93,7 @@ To customize the monitoring behavior:
 
 ```python
 from led_matrix_battery.monitor import run_power_monitor
-from led_matrix_battery.inputmodule.helpers import DEVICES
+from led_matrix_battery.led_matrix.helpers.device import DEVICES
 from pathlib import Path
 
 # Get the first available LED matrix device
@@ -118,7 +118,7 @@ To run the monitor in a background thread:
 
 ```python
 from led_matrix_battery.monitor import run_power_monitor_threaded
-from led_matrix_battery.inputmodule.helpers import DEVICES
+from led_matrix_battery.led_matrix.helpers.device import DEVICES
 
 # Get the first available LED matrix device
 device = DEVICES[0]
