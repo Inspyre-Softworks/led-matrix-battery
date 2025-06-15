@@ -16,7 +16,9 @@ Description:
 
 """
 from typing import Optional
-from led_matrix_battery.led_matrix.constants import PROJECT_URLS, GITHUB_URL_SUFFIX
+from led_matrix_battery.led_matrix.constants import PROJECT_URLS
+
+GITHUB_URL_SUFFIX = '?ref=main'
 
 
 def assemble_github_url_suffix(branch: Optional[str] = None):
