@@ -14,15 +14,32 @@ Description:
 """
 
 import json
+import hashlib
 from pathlib import Path
 from typing import Optional, Dict, Union
 from datetime import datetime
 
 from easy_exit_calls import ExitCallHandler
 from led_matrix_battery.dev_tools.debug import is_debug_mode
-from led_matrix_battery.common.helpers import calculate_checksum
 
 ECH = ExitCallHandler()
+
+
+def calculate_checksum(file_path: Union[str, Path]) -> str:
+    """
+    Calculates a SHA256 checksum for a file.
+
+    Parameters:
+        file_path (Union[str, Path]): Path to the file.
+
+    Returns:
+        str: Hex digest of the file's SHA256 checksum.
+    """
+    hash_sha256 = hashlib.sha256()
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b''):
+            hash_sha256.update(chunk)
+    return hash_sha256.hexdigest()
 
 
 class GridPresetManifest:
@@ -96,11 +113,9 @@ class GridPresetManifest:
         Returns:
             Optional[str]: Checksum string or None.
         """
-        if not filename.endswith('.json'):
-            filename += '.json'
         return self._manifest_dict.get(filename)
 
-    def __add(self, filename: str, checksum: str):
+    def add(self, filename: str, checksum: str):
         """
         Adds or updates a checksum entry in the manifest.
 
@@ -109,9 +124,6 @@ class GridPresetManifest:
             checksum (str): Checksum string.
         """
         self._manifest_dict[filename] = checksum
-
-    if is_debug_mode():
-        add = __add
 
     def scan(self, dir_path: Union[str, Path]):
         """
@@ -126,14 +138,14 @@ class GridPresetManifest:
 
         for file in dir_path.iterdir():
             if file.is_file():
-                checksum = calculate_checksum(file)  # must return a string
-                self.__add(file.name, checksum)
+                checksum = calculate_checksum(file)
+                self.add(file.name, checksum)
 
     def __getitem__(self, filename: str) -> Optional[str]:
         return self.get_checksum(filename)
 
     def __setitem__(self, filename: str, checksum: str):
-        self.__add(filename, checksum)
+        self.add(filename, checksum)
 
     def __contains__(self, filename: str) -> bool:
         return filename in self._manifest_dict
@@ -158,16 +170,3 @@ class GridPresetManifest:
             version (str): Version string.
         """
         self._meta['version'] = version
-
-    @classmethod
-    def from_manifest(cls, file_path: Union[str, Path]):
-        """
-        Creates a GridPresetManifest instance from an existing manifest file.
-
-        Parameters:
-            file_path (Union[str, Path]): Path to the manifest file.
-
-        Returns:
-            GridPresetManifest: Instance of the class.
-        """
-        return cls(file_path)

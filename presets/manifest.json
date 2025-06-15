@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "dev",
-    "date": "2025-05-16T03:12:46.244813"
+    "date": "2025-06-15T06:03:23.098454"
   },
   "manifest": [
     {
@@ -39,6 +39,9 @@
     },
     {
       "x_animation.json": "cda89733264d25d7edc175bcba15de6535e8f7d778f6028d5ca65b240b06f20d"
+    },
+    {
+      "manifest.json": "df494efba518d082e11c63a122df4e9c9f9407128e82375ebf9b1af42a243be5"
     }
   ]
 }

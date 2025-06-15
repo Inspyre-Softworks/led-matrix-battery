@@ -6,7 +6,7 @@ from led_matrix_battery.led_matrix.constants import FWK_MAGIC, RESPONSE_SIZE
 from serial.tools.list_ports_common import ListPortInfo
 from threading import Thread
 
-from led_matrix_battery.led_matrix import LEDMatrixController
+from led_matrix_battery.led_matrix.controller.controller import LEDMatrixController
 
 import json
 from pathlib import Path
@@ -24,9 +24,14 @@ def get_json_from_file(path: Union[str, Path]) -> Any:
         Any: The parsed JSON data.
 
     Raises:
-        FileNotFoundError: If the file does not exist.
-        IsADirectoryError: If the path points to a directory.
-        json.JSONDecodeError: If the file contains invalid JSON.
+        FileNotFoundError:
+            If the file does not exist.
+
+        IsADirectoryError:
+            If the path points to a directory.
+
+        json.JSONDecodeError:
+            If the file contains invalid JSON.
     """
     path = provision_path(path)
     if not path.exists():

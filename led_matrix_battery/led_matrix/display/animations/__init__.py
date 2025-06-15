@@ -1,12 +1,9 @@
 from time import sleep
 
 
-from led_matrix_battery.led_matrix import (
-    brightness,
-    pattern,
-    checkerboard,
-    show_string,
-)
+from led_matrix_battery.led_matrix.hardware import brightness
+from led_matrix_battery.led_matrix.display.patterns import pattern, checkerboard
+from led_matrix_battery.led_matrix.display.text import show_string
 
 
 def clear(dev):

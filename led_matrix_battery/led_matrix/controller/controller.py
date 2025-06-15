@@ -26,8 +26,10 @@ from inspyre_toolbox.syntactic_sweets.classes.decorators.aliases import add_alia
 from serial.tools.list_ports_common import ListPortInfo
 
 from led_matrix_battery.common.helpers import coerce_to_int
-from led_matrix_battery.led_matrix import animate, SLOT_MAP, render_matrix, pattern as _set_pattern_raw, \
-    percentage as _show_percentage_raw, show_string as _show_string_raw, brightness as _set_brightness_raw
+from led_matrix_battery.led_matrix.constants import SLOT_MAP
+from led_matrix_battery.led_matrix.hardware import animate, percentage as _show_percentage_raw, brightness as _set_brightness_raw
+from led_matrix_battery.led_matrix.display.text import show_string as _show_string_raw
+from led_matrix_battery.led_matrix.display.patterns import pattern as _set_pattern_raw, render_matrix
 from led_matrix_battery.led_matrix.controller import MultitonMeta
 from led_matrix_battery.led_matrix.controller.helpers.threading import synchronized
 from led_matrix_battery.led_matrix.display.grid.helpers import generate_blank_grid

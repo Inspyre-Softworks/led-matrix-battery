@@ -21,7 +21,6 @@ import itertools
 from pathlib import Path
 from typing import List, Optional, Union, ClassVar, Type, Any, Dict  # Added Any, Dict
 from ...constants import WIDTH as __WIDTH, HEIGHT as __HEIGHT, PRESETS_DIR
-from ...helpers import load_from_file
 from .helpers import is_valid_grid, generate_blank_grid
 from led_matrix_battery.common.helpers import coerce_to_int
 
@@ -142,6 +141,7 @@ class Grid:
         """
         Load a column-major grid from file (single grid or frames of grids).
         """
+        from ...helpers import load_from_file
         raw = load_from_file(str(filename))
         # Single-grid JSON: list of lists
         if isinstance(raw, list) and raw and isinstance(raw[0], list):

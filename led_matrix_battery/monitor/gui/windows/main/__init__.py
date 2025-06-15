@@ -1,8 +1,8 @@
 from .layout import Layout as MainWindowLayout
 from ..base import WindowBase
-from led_matrix_battery.led_matrix import brightness
+from led_matrix_battery.led_matrix.hardware import brightness
 from led_matrix_battery.led_matrix.helpers.device import DEVICES
-from led_matrix_battery.monitor import PowerMonitor
+from led_matrix_battery.monitor.monitor import PowerMonitor
 import time
 
 
