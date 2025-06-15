@@ -34,8 +34,7 @@ PROJECT_URLS = {
     'github_api': 'https://api.github.com/repos/Inspyre-Softworks/led-matrix-battery/contents'
 }
 
-GITHUB_URL_SUFFIX = '?ref=master'
-
+GITHUB_REQ_HEADERS = {"Accept": "application/vnd.github.v3+json"}
 
 
 # Physical slot mapping
@@ -70,6 +69,7 @@ __all__ = [
     'DEVICES',
     'DISCONNECTED_DEVS',
     'FWK_MAGIC',
+    'GITHUB_REQ_HEADERS',
     'GRAYSCALE_CVT',
     'HEIGHT',
     'PID',
