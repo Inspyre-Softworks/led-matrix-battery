@@ -46,7 +46,7 @@ from typing import List, Dict, Optional, Union
 from pathlib import Path
 import requests
 import hashlib
-from tqdm import tqdm
+from led_matrix_battery.progress import tqdm
 
 from led_matrix_battery.led_matrix.constants import PROJECT_URLS, APP_DIRS, GITHUB_REQ_HEADERS as REQ_HEADERS
 from led_matrix_battery.led_matrix.display.grid.presets.manifest import GridPresetManifest
