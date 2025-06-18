@@ -2,11 +2,18 @@
 
 import pytest
 from unittest.mock import Mock
+import sys
+from pathlib import Path
 
-from led_matrix_battery.led_matrix.display.grid.grid import Grid, MATRIX_WIDTH, MATRIX_HEIGHT
+# Ensure the project root is on the Python path
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from matrix_display.display.grid.grid import Grid, MATRIX_WIDTH, MATRIX_HEIGHT
 
 # Mocks for helpers/constants
-import led_matrix_battery.led_matrix.display.grid.grid as grid_mod
+import matrix_display.display.grid.grid as grid_mod
 
 @pytest.fixture(autouse=True)
 def patch_helpers(monkeypatch):

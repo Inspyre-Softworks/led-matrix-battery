@@ -4,7 +4,7 @@ Battery Monitor Script.
 
 This script provides a command-line interface for monitoring the battery status
 and displaying it on an LED matrix. It uses the PowerMonitor class from the
-led_matrix_battery.monitor module to monitor the battery level and power state.
+``power_monitor`` package to monitor the battery level and power state.
 
 Usage:
     python battery_monitor.py [options]
@@ -22,10 +22,10 @@ import sys
 from pathlib import Path
 
 # Import the necessary modules from the led_matrix_battery package
-from led_matrix_battery.monitor import run_power_monitor
-from led_matrix_battery.led_matrix.helpers.device import get_devices
-from led_matrix_battery.notify.sounds import Sound
-from led_matrix_battery.led_matrix.led_matrix import LEDMatrix
+from power_monitor import run_power_monitor
+from matrix_display.helpers.device import get_devices
+from matrix_display.notify.sounds import Sound
+from matrix_display.led_matrix import LEDMatrix
 
 
 def parse_arguments():
