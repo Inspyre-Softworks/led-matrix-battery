@@ -1,7 +1,7 @@
 [project]
 name = "led-matrix-battery"
 version = "0.1.0"
-description = ""
+description = "Utilities for LED matrix hardware and a power monitor. Now split into two packages: matrix_display and power_monitor."
 authors = [
     {name = "Taylor B.",email = "tayjaybabee@gmail.com"}
 ]
@@ -46,7 +46,7 @@ ipyboost = { version = "1.0.0.a3", source = "testpypi"}
 
 [tool.poetry.scripts]
 python-path = "Scripts.python_path:main"
-led-matrix-identify = 'led_matrix_battery.led_matrix.Scripts.identify_matrices:main'
+led-matrix-identify = 'matrix_display.Scripts.identify_matrices:main'
 install-presets = "Scripts.install_presets:main"
 
 [tool.pytest.ini_options]

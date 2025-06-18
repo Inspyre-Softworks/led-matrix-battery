@@ -10,7 +10,10 @@
 
 ## Introduction
 
-The LED Matrix Battery Monitor is a system that displays your computer's battery status on an LED matrix display. It provides visual feedback about battery level, charging status, and other power-related information through customizable animations and patterns.
+The LED Matrix Battery Monitor is now split into two Python packages.  The
+`matrix_display` package handles controlling LED matrix hardware and animations
+while `power_monitor` provides the battery monitoring logic.  Together they
+function just like the original single package.
 
 ## Hardware Setup
 
@@ -62,7 +65,7 @@ pip install led-matrix-battery
 ### Verifying Installation
 To verify that the installation was successful, run:
 ```bash
-python -m led_matrix_battery.led_matrix.tools.identify
+python -m matrix_display.tools.identify
 ```
 
 This command should detect your connected LED Matrix and display identification information on it.
@@ -108,7 +111,7 @@ Configuration changes are applied automatically when the application is restarte
 ### Starting the Battery Monitor
 To start the battery monitor:
 ```bash
-python -m led_matrix_battery.monitor
+python -m power_monitor
 ```
 
 Or use the provided script:

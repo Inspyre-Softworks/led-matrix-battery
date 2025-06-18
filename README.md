@@ -1,6 +1,8 @@
 # LED Matrix Battery Monitor
 
-A Python application that displays your computer's battery status on an LED matrix display. The application monitors battery level and power state, providing visual feedback on an LED matrix and audio notifications when power is plugged or unplugged.
+This repository now contains **two** Python packages.  The `matrix_display` package provides utilities for controlling LED matrices and creating animations.  The `power_monitor` package focuses solely on monitoring battery status and displaying it on the matrix.
+
+The original LED Matrix Battery Monitor bundled both pieces of functionality together.  To make reuse easier the hardware logic has been split into the `matrix_display` package, while all battery monitoring code lives in `power_monitor`.
 
 ## Project Description and Purpose
 
@@ -77,8 +79,8 @@ This project requires Python 3.12 or newer and the following dependencies:
 To start monitoring your battery with default settings:
 
 ```python
-from led_matrix_battery.monitor import run_power_monitor
-from led_matrix_battery.led_matrix.helpers.device import DEVICES
+from power_monitor import run_power_monitor
+from matrix_display.helpers.device import DEVICES
 
 # Get the first available LED matrix device
 device = DEVICES[0]
@@ -92,8 +94,8 @@ run_power_monitor(device)
 To customize the monitoring behavior:
 
 ```python
-from led_matrix_battery.monitor import run_power_monitor
-from led_matrix_battery.led_matrix.helpers.device import DEVICES
+from power_monitor import run_power_monitor
+from matrix_display.helpers.device import DEVICES
 from pathlib import Path
 
 # Get the first available LED matrix device
@@ -117,8 +119,8 @@ run_power_monitor(
 To run the monitor in a background thread:
 
 ```python
-from led_matrix_battery.monitor import run_power_monitor_threaded
-from led_matrix_battery.led_matrix.helpers.device import DEVICES
+from power_monitor import run_power_monitor_threaded
+from matrix_display.helpers.device import DEVICES
 
 # Get the first available LED matrix device
 device = DEVICES[0]
