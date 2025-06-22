@@ -77,8 +77,8 @@ This project requires Python 3.12 or newer and the following dependencies:
 To start monitoring your battery with default settings:
 
 ```python
-from led_matrix_battery.monitor import run_power_monitor
-from led_matrix_battery.led_matrix.helpers.device import DEVICES
+from is_matrix_forge.monitor import run_power_monitor
+from is_matrix_forge.led_matrix.helpers.device import DEVICES
 
 # Get the first available LED matrix device
 device = DEVICES[0]
@@ -92,8 +92,8 @@ run_power_monitor(device)
 To customize the monitoring behavior:
 
 ```python
-from led_matrix_battery.monitor import run_power_monitor
-from led_matrix_battery.led_matrix.helpers.device import DEVICES
+from is_matrix_forge.monitor import run_power_monitor
+from is_matrix_forge.led_matrix.helpers.device import DEVICES
 from pathlib import Path
 
 # Get the first available LED matrix device
@@ -117,8 +117,8 @@ run_power_monitor(
 To run the monitor in a background thread:
 
 ```python
-from led_matrix_battery.monitor import run_power_monitor_threaded
-from led_matrix_battery.led_matrix.helpers.device import DEVICES
+from is_matrix_forge.monitor import run_power_monitor_threaded
+from is_matrix_forge.led_matrix.helpers.device import DEVICES
 
 # Get the first available LED matrix device
 device = DEVICES[0]

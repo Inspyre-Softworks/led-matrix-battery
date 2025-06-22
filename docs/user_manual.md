@@ -62,7 +62,7 @@ pip install led-matrix-battery
 ### Verifying Installation
 To verify that the installation was successful, run:
 ```bash
-python -m led_matrix_battery.led_matrix.tools.identify
+python -m is_matrix_forge.led_matrix.tools.identify
 ```
 
 This command should detect your connected LED Matrix and display identification information on it.
@@ -108,7 +108,7 @@ Configuration changes are applied automatically when the application is restarte
 ### Starting the Battery Monitor
 To start the battery monitor:
 ```bash
-python -m led_matrix_battery.monitor
+python -m is_matrix_forge.monitor
 ```
 
 Or use the provided script:

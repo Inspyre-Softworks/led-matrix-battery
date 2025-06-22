@@ -1,0 +1,16 @@
+services:
+  python-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python-app
+    restart: unless-stopped
+    init: true
+    # env_file: ./.env  # Uncomment if .env file exists
+    # No ports exposed, as the application is not a web service and no ports are mentioned in the README or Dockerfile
+    # No volumes needed, as there are no databases or persistent data requirements
+    # No external services required (no databases, caches, or brokers mentioned in README or code)
+    # Default command is set in Dockerfile (CMD ["bash"]) for developer shell access
+
+# No networks section needed as there is only one service and no inter-service communication
+# No volumes section needed as there is no persistent data required

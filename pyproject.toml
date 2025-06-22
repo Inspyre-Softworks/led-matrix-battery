@@ -6,6 +6,10 @@ authors = [
     {name = "Taylor B.",email = "tayjaybabee@gmail.com"}
 ]
 readme = "README.md"
+license = "MIT"
+keywords = ["led", "matrix", "battery", "framework", "hardware"]
+homepage = "https://github.com/Inspyre-Softworks/led-matrix-battery"
+repository = "https://github.com/Inspyre-Softworks/led-matrix-battery"
 requires-python = ">=3.12,<4.0"
 
 [[tool.poetry.source]]
@@ -43,14 +47,21 @@ prompt-toolkit = "^3.0.51"
 ptipython = "^1.0.1"
 ipyboost = { version = "1.0.0.a3", source = "testpypi"}
 
-
 [tool.poetry.scripts]
 python-path = "Scripts.python_path:main"
 led-matrix-identify = 'led_matrix_battery.led_matrix.Scripts.identify_matrices:main'
 install-presets = "Scripts.install_presets:main"
+
+[[tool.poetry.include]]
+path = "presets/**"
+format = "sdist"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
+
+[tool.poetry.group.plugins.dependencies]
+poetry-plugin-export = ">=1.9.0"
+poetry-plugin-shell = ">=1.0.1"
